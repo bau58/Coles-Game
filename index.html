@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cole & Héctor : ) </title>
+    <title>Héctor & Nicole - Rhine Journey</title>
     <!-- Importing Roboto and Bebas Neue -->
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
@@ -23,8 +23,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            background: rgba(213, 229, 213, 0.95); /* Light pastel mint green */
-            color: #1e3a24; /* Dark sleek green for contrast */
+            background: rgba(213, 229, 213, 0.95); 
+            color: #1e3a24; 
             text-align: center;
             padding: 12px 0;
             z-index: 50; 
@@ -39,7 +39,6 @@
             font-weight: bold;
             letter-spacing: 2px;
             margin-bottom: 2px;
-            /* Using the HTML entity for infinity to fix the encoding bug */
         }
 
         .clocks {
@@ -58,7 +57,8 @@
             position: relative;
             height: 100vh;
             width: 100vw;
-            background-image: url('Cole y Hector.png'); /* CHANGE THIS TO YOUR IMAGE */
+            /* UPDATED: File name with spaces */
+            background-image: url('Cole y Hector.png'); 
             background-size: cover;
             background-position: center;
             display: flex;
@@ -69,7 +69,8 @@
 
         /* Minimalist Calendar Container */
         #calendar-wrapper {
-            background: rgba(20, 20, 20, 0.85); /* Solid dark, slightly frosted */
+            /* UPDATED: Background is now 50% more transparent (from 0.85 to 0.4) */
+            background: rgba(20, 20, 20, 0.4); 
             backdrop-filter: blur(8px);
             padding: 30px 20px;
             border-radius: 12px;
@@ -86,6 +87,7 @@
             font-size: 2.5rem;
             letter-spacing: 4px;
             margin: 0 0 20px 0;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.5); /* Added subtle shadow for readability */
         }
 
         /* 4x2 Grid for the 8 days */
@@ -117,6 +119,7 @@
         .day-num {
             font-size: 1.8rem;
             font-weight: 300;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5); /* Shadow to help text pop on clear backgrounds */
         }
 
         .day-loc {
@@ -125,9 +128,9 @@
             letter-spacing: 1px;
             margin-top: 5px;
             color: #bdc3c7;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
 
-        /* Class added dynamically by JS if the date is in the future */
         .locked {
             opacity: 0.35;
         }
@@ -186,7 +189,6 @@
         <div id="calendar-wrapper">
             <h1>JUNE</h1>
             <div class="calendar-grid" id="calendar-grid">
-                <!-- Using data-day attributes to track the dates -->
                 <div class="day-card" data-day="17">
                     <span class="day-num">17</span>
                     <span class="day-loc">KIND</span>
@@ -233,7 +235,6 @@
     </div>
 
     <script>
-        /* --- 1. CLOCK ENGINE --- */
         function updateClocks() {
             const now = new Date();
             const mxOptions = { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
@@ -245,12 +246,10 @@
         updateClocks();
         setInterval(updateClocks, 1000);
 
-        /* --- 2. CALENDAR LOCK LOGIC --- */
         function setupCalendar() {
-            // Get current exact time in CEST
             const cestTime = new Date().toLocaleString("en-US", {timeZone: "Europe/Amsterdam"});
             const cestDate = new Date(cestTime);
-            const currentMonth = cestDate.getMonth() + 1; // 6 = June
+            const currentMonth = cestDate.getMonth() + 1; 
             const currentDay = cestDate.getDate();
 
             const cards = document.querySelectorAll('.day-card');
@@ -258,21 +257,16 @@
             cards.forEach(card => {
                 const day = parseInt(card.getAttribute('data-day'));
                 
-                // Determine if this specific card represents a future date
                 const isLocked = (currentMonth === 6 && day > currentDay) || currentMonth < 6;
 
-                // Visually dim the locked days
                 if (isLocked) {
                     card.classList.add('locked');
                 }
 
-                // Add the click action
                 card.addEventListener('click', () => {
                     if (isLocked) {
-                        // Show the custom pop up
                         document.getElementById('alert-modal').style.display = 'flex';
                     } else {
-                        // Forward to that day's file (e.g., june17.html)
                         window.location.href = 'june' + day + '.html';
                     }
                 });
