@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>June 17 - Kinderdijk</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+            background-color: #1a1a1a;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Persistent Real-Time Header */
+        #clock-header {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 15px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        .time-label {
+            font-size: 0.75rem;
+            color: #bdc3c7;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        /* Revealed Main Content Container */
+        #content-container {
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+            background-image: url('https://images.unsplash.com/photo-1549144511-f099e773c147?q=80&w=1200&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #question-box {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.65);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            max-width: 85%;
+        }
+
+        #question-box h1 {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            font-size: 1.2rem;
+            padding: 12px 35px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.1s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        #btn-yes { background-color: #2ecc71; color: white; }
+        #btn-no { background-color: #e74c3c; color: white; }
+
+        /* The Scratch-Off Canvas Overlay */
+        #scratch-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        #scratch-instruction {
+            position: absolute;
+            bottom: 10%;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 1.3rem;
+            z-index: 6;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
+            font-weight: bold;
+        }
+
+        /* Universal End Screen (Reveals Couple Photo) */
+        #success-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #111111;
+            color: white;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+        }
+
+        #success-screen img {
+            max-width: 85%;
+            max-height: 65vh;
+            border-radius: 12px;
+            border: 6px solid white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+            margin-bottom: 20px;
+            object-fit: cover;
+        }
+
+        #success-screen h2 {
+            font-size: 2rem;
+            text-align: center;
+            margin: 0 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="clock-header">
+        <div style="text-align: center;">
+            <span class="time-label">CDMX</span>
+            <span id="mx-time">--:--:--</span>
+        </div>
+        <div style="text-align: center;">
+            <span class="time-label">Kinderdijk (CEST)</span>
+            <span id="eu-time">--:--:--</span>
+        </div>
+    </div>
+
+    <div id="scratch-instruction">Raspa la pantalla para descubrir hoy ✨</div>
+
+    <canvas id="scratch-canvas"></canvas>
+
+    <div id="content-container">
+        <div id="question-box">
+            <h1>¿Quieres ser mi novia?</h1>
+            <button id="btn-yes" class="btn">Sí</button>
+            <button id="btn-no" class="btn">No</button>
+        </div>
+    </div>
+
+    <div id="success-screen">
+        <img src="https://images.unsplash.com/photo-1518199266791-5375a83164ba?q=80&w=1000&auto=format&fit=crop" alt="Nosotros">
+        <h2>¡Te amo! Que tengas una noche hermosa en Holanda ❤️</h2>
+    </div>
+
+    <script>
+        /* --- 1. CLOCK ENGINE --- */
+        function updateClocks() {
+            const now = new Date();
+            const mxOptions = { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            const euOptions = { timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            
+            document.getElementById('mx-time').innerText = now.toLocaleTimeString('en-US', mxOptions);
+            document.getElementById('eu-time').innerText = now.toLocaleTimeString('en-US', euOptions);
+        }
+        updateClocks();
+        setInterval(updateClocks, 1000);
+
+        /* --- 2. CANVAS SCRATCH-OFF LOGIC --- */
+        const canvas = document.getElementById('scratch-canvas');
+        const ctx = canvas.getContext('2d');
+        const instruction = document.getElementById('scratch-instruction');
+        let isDrawing = false;
+
+        // Scale canvas to match the screen exactly
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            
+            // Fill canvas with a solid silver/gray cover color
+            ctx.fillStyle = '#b8b8b8';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Add a subtle textual pattern onto the scratch cover
+            ctx.fillStyle = '#8e8e8e';
+            ctx.font = '20px sans-serif';
+            ctx.textAlign = 'center';
+            for(let i = 100; i < canvas.width; i += 250) {
+                for(let j = 150; j < canvas.height; j += 200) {
+                    ctx.fillText('???', i, j);
+                }
+            }
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Scratch mechanics
+        function scratch(e) {
+            if (!isDrawing) return;
+            
+            // Get correct coordinates for both touch and desktop mouse
+            const rect = canvas.getBoundingClientRect();
+            const x = (e.clientX || e.touches[0].clientX) - rect.left;
+            const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.beginPath();
+            ctx.arc(x, y, 45, 0, Math.PI * 2); // Radius size of scratch brush
+            ctx.fill();
+
+            // Fade instruction text once she starts scratching
+            instruction.style.opacity = '0';
+        }
+
+        canvas.addEventListener('mousedown', () => isDrawing = true);
+        canvas.addEventListener('mouseup', () => isDrawing = false);
+        canvas.addEventListener('mousemove', scratch);
+
+        canvas.addEventListener('touchstart', () => isDrawing = true);
+        canvas.addEventListener('touchend', () => isDrawing = false);
+        canvas.addEventListener('touchmove', scratch);
+
+        /* --- 3. GAME REVEAL PAYOFF --- */
+        const yesBtn = document.getElementById('btn-yes');
+        const successScreen = document.getElementById('success-screen');
+
+        yesBtn.addEventListener('click', () => {
+            successScreen.style.display = 'flex';
+        });
+
+        // Simple fallback to remove canvas if clicked "No" just to avoid freezing
+        document.getElementById('btn-no').addEventListener('click', () => {
+            alert('Inténtalo de nuevo 😉');
+        });
+    </script>
+</body>
+</html>
