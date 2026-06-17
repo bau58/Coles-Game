@@ -16,32 +16,41 @@
             -webkit-user-select: none;
         }
 
-        /* Persistent Real-Time Header */
-        #clock-header {
+        /* UPDATED: Green Top Bar Header */
+        #top-bar {
             position: absolute;
             top: 0;
+            left: 0;
             width: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(30, 70, 32, 0.85); /* Sleek emerald green tone with transparency */
             color: white;
-            display: flex;
-            justify-content: space-around;
+            text-align: center;
             padding: 15px 0;
-            font-size: 1.1rem;
-            font-weight: bold;
-            z-index: 10;
-            backdrop-filter: blur(5px);
+            z-index: 50; 
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        .time-label {
-            font-size: 0.75rem;
-            color: #bdc3c7;
+        .couple-name {
+            font-size: 1.6rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .clocks {
+            font-size: 0.85rem;
+            color: #e2f0e3;
             text-transform: uppercase;
             letter-spacing: 1px;
-            display: block;
-            margin-bottom: 3px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
         }
 
-        /* Revealed Main Content Container */
+        /* UPDATED: Main Background Image Set to Your File */
         #content-container {
             position: relative;
             height: 100vh;
@@ -57,13 +66,14 @@
 
         #question-box {
             text-align: center;
-            background: rgba(0, 0, 0, 0.65);
+            background: rgba(0, 0, 0, 0.75);
             padding: 30px;
             border-radius: 15px;
             color: white;
             backdrop-filter: blur(5px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
             max-width: 85%;
+            z-index: 10;
         }
 
         #question-box h1 {
@@ -101,20 +111,22 @@
             cursor: pointer;
         }
 
+        /* UPDATED: Floating instruction text matching new copy */
         #scratch-instruction {
             position: absolute;
-            bottom: 10%;
+            bottom: 12%;
             width: 100%;
             text-align: center;
             color: white;
-            font-size: 1.3rem;
+            font-size: 1.4rem;
             z-index: 6;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.9);
             pointer-events: none;
             font-weight: bold;
+            transition: opacity 0.4s ease;
         }
 
-        /* Universal End Screen (Reveals Couple Photo) */
+        /* Universal End Screen */
         #success-screen {
             display: none;
             position: absolute;
@@ -127,40 +139,38 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            z-index: 20;
+            z-index: 100; 
         }
 
         #success-screen img {
             max-width: 85%;
-            max-height: 65vh;
+            max-height: 60vh;
             border-radius: 12px;
             border: 6px solid white;
             box-shadow: 0 10px 30px rgba(0,0,0,0.7);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             object-fit: cover;
         }
 
         #success-screen h2 {
-            font-size: 2rem;
+            font-size: 1.8rem;
             text-align: center;
-            margin: 0 15px;
+            margin: 0 20px;
+            line-height: 1.4;
         }
     </style>
 </head>
 <body>
 
-    <div id="clock-header">
-        <div style="text-align: center;">
-            <span class="time-label">CDMX</span>
-            <span id="mx-time">--:--:--</span>
-        </div>
-        <div style="text-align: center;">
-            <span class="time-label">Kinderdijk (CEST)</span>
-            <span id="eu-time">--:--:--</span>
+    <div id="top-bar">
+        <div class="couple-name">Héctor + Nicole</div>
+        <div class="clocks">
+            <span>CDMX: <span id="mx-time">--:--:--</span></span>
+            <span>CEST: <span id="eu-time">--:--:--</span></span>
         </div>
     </div>
 
-    <div id="scratch-instruction">Raspa la pantalla para descubrir hoy ✨</div>
+    <div id="scratch-instruction">Scratch to reveal ✨</div>
 
     <canvas id="scratch-canvas"></canvas>
 
@@ -173,8 +183,8 @@
     </div>
 
     <div id="success-screen">
-        <img src="https://images.unsplash.com/photo-1518199266791-5375a83164ba?q=80&w=1000&auto=format&fit=crop" alt="Nosotros">
-        <h2>¡Te amo! Que tengas una noche hermosa en Holanda ❤️</h2>
+        <img src="IMG_1430.JPEG" alt="Nosotros">
+        <h2>¡Te amo! Have a good night, new game tomorrow ❤️</h2>
     </div>
 
     <script>
@@ -196,43 +206,39 @@
         const instruction = document.getElementById('scratch-instruction');
         let isDrawing = false;
 
-        // Scale canvas to match the screen exactly
         function resizeCanvas() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
             
-            // Fill canvas with a solid silver/gray cover color
+            // Silver canvas layer
             ctx.fillStyle = '#b8b8b8';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Add a subtle textual pattern onto the scratch cover
-            ctx.fillStyle = '#8e8e8e';
-            ctx.font = '20px sans-serif';
+            // UPDATED: Injected "Scratch to reveal" pattern directly into the gray texture
+            ctx.fillStyle = '#949494';
+            ctx.font = 'bold 14px sans-serif';
             ctx.textAlign = 'center';
-            for(let i = 100; i < canvas.width; i += 250) {
-                for(let j = 150; j < canvas.height; j += 200) {
-                    ctx.fillText('???', i, j);
+            for(let i = 80; i < canvas.width; i += 180) {
+                for(let j = 120; j < canvas.height; j += 160) {
+                    ctx.fillText('Scratch to reveal', i, j);
                 }
             }
         }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Scratch mechanics
         function scratch(e) {
             if (!isDrawing) return;
             
-            // Get correct coordinates for both touch and desktop mouse
             const rect = canvas.getBoundingClientRect();
             const x = (e.clientX || e.touches[0].clientX) - rect.left;
             const y = (e.clientY || e.touches[0].clientY) - rect.top;
 
             ctx.globalCompositeOperation = 'destination-out';
             ctx.beginPath();
-            ctx.arc(x, y, 45, 0, Math.PI * 2); // Radius size of scratch brush
+            ctx.arc(x, y, 50, 0, Math.PI * 2);
             ctx.fill();
 
-            // Fade instruction text once she starts scratching
             instruction.style.opacity = '0';
         }
 
@@ -252,7 +258,6 @@
             successScreen.style.display = 'flex';
         });
 
-        // Simple fallback to remove canvas if clicked "No" just to avoid freezing
         document.getElementById('btn-no').addEventListener('click', () => {
             alert('Inténtalo de nuevo 😉');
         });
