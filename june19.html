@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Koblenz - Héctor + Nicole</title>
+    <title>Love can be puzzling, huh?</title>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
@@ -45,6 +45,9 @@
         header .title { flex: 2; text-align: center; }
         header .clocks { flex: 1; text-align: right; font-size: 1rem; }
 
+        /* The Infinity symbol needs a system font to render properly */
+        .infinity { font-family: Arial, sans-serif; font-size: 1.1rem; }
+
         /* Full Screen Stage Containers */
         .stage {
             position: absolute;
@@ -56,7 +59,8 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            transition: opacity 1s ease-in-out;
+            /* SLOWER 2.5s TRANSITION */
+            transition: opacity 2.5s ease-in-out;
             opacity: 0;
             pointer-events: none;
             box-sizing: border-box;
@@ -182,7 +186,7 @@
             font-weight: 300;
             font-size: 0.95rem;
             line-height: 1.6;
-            margin: 0;
+            margin: 0 0 10px 0;
             text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
         }
     </style>
@@ -192,7 +196,7 @@
 <!-- Header -->
 <header>
     <a href="index.html">&lt; Home</a>
-    <div class="title">Héctor + Nicole ∞</div>
+    <div class="title">Héctor + Nicole <span class="infinity">∞</span></div>
     <div class="clocks">
         <span id="time-cdmx">--:--</span> | <span id="time-ams">--:--</span>
     </div>
@@ -207,7 +211,7 @@
 <!-- STAGE 2: Blurred Castle & Question -->
 <div id="stage-question" class="stage">
     <div class="question-card">
-        <h2>This Castle is definitely worthy of my Birthday King. Cole, do you want to be my girlfriend?</h2>
+        <h2>This Castle seems safe and worthy of my Birthday King....quick question...<br><br>Cole, do you want to be my girlfriend?</h2>
         <div class="buttons">
             <button class="btn primary" onclick="showReward()">YESSSSS</button>
             <button class="btn secondary" onclick="rejectOffer()">No :(</button>
@@ -219,7 +223,8 @@
 <!-- STAGE 3: Romantic Photo & Text Overlay -->
 <div id="stage-reward" class="stage">
     <div class="reward-overlay">
-        <p>Remember when we decided to skip work and just go to the zoo? I'm so in love with you... I'm so in love with our story, I'm so in love with us as a team and as friends and I can't wait for the story we're going to write. Have a wonderful day, my Birthday King. I love you! ❤️❤️</p>
+        <p>Remember when we decided to skip work and just go to the Zoo? I'm so in love with you... I'm so in love with our story, I'm so in love with us as a team and as friends, I'm so in love with our adventures, I'm so in love with our crazy and romantic decisions... I can't wait for the story we're going to write, the best is yet to come.</p>
+        <p>Have a wonderful day, my Birthday King. I love you! ❤️❤️</p>
     </div>
 </div>
 
@@ -308,10 +313,20 @@
 
     function checkWin() {
         if (JSON.stringify(tiles) === JSON.stringify(solvedState)) {
+            // Fill the empty space with the last piece of the image visually before fading
+            const emptyTile = document.querySelector('.tile.empty');
+            if (emptyTile) {
+                emptyTile.classList.remove('empty');
+                const bgRow = Math.floor(8 / size);
+                const bgCol = 8 % size;
+                emptyTile.style.backgroundPosition = `-${bgCol * tileSize}px -${bgRow * tileSize}px`;
+            }
+
+            // Give her 1.5 seconds to admire the finished puzzle before transitioning
             setTimeout(() => {
                 document.getElementById('stage-puzzle').classList.remove('active');
                 document.getElementById('stage-question').classList.add('active');
-            }, 400);
+            }, 1500);
         }
     }
 
