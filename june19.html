@@ -19,7 +19,7 @@
             width: 100vw;
             background: #fafafa; 
             font-family: 'Roboto', sans-serif; 
-            overflow: hidden; /* Prevents scroll on mobile */
+            overflow: hidden; 
             color: var(--dark);
         }
 
@@ -60,7 +60,7 @@
             opacity: 0;
             pointer-events: none;
             box-sizing: border-box;
-            padding-top: 60px; /* Offset for header */
+            padding-top: 60px; 
         }
         
         .stage.active {
@@ -83,8 +83,8 @@
 
         #puzzle-grid { 
             display: grid; 
-            grid-template-columns: repeat(4, 75px); 
-            grid-template-rows: repeat(4, 75px); 
+            grid-template-columns: repeat(3, 100px); 
+            grid-template-rows: repeat(3, 100px); 
             gap: 2px; 
             background: #ccc; 
             padding: 2px; 
@@ -93,10 +93,11 @@
         }
 
         .tile { 
-            width: 75px; 
-            height: 75px; 
-            background-image: url('june19.castle.jpg'); 
-            background-size: 300px 300px; /* 4 * 75px */
+            width: 100px; 
+            height: 100px; 
+            /* UNBLURRED image for the puzzle */
+            background-image: url('june19.castle.original.JPG'); 
+            background-size: 300px 300px; 
             cursor: pointer; 
             transition: transform 0.15s ease-in-out;
         }
@@ -108,12 +109,12 @@
 
         /* --- STAGE 2: QUESTION REVEAL --- */
         #stage-question {
-            background-image: url('june19.castle.original.JPG');
+            /* BLURRED image for the background once solved */
+            background-image: url('june19.castle.jpg'); 
             background-size: cover;
             background-position: center;
         }
         
-        /* Dark overlay to make text readable */
         .question-card {
             background: rgba(255, 255, 255, 0.85);
             padding: 40px 20px;
@@ -197,13 +198,13 @@
     </div>
 </header>
 
-<!-- STAGE 1: 4x4 Sliding Puzzle -->
+<!-- STAGE 1: 3x3 Sliding Puzzle -->
 <div id="stage-puzzle" class="stage active">
-    <div id="puzzle-title">Koblenz: Marksburg</div>
+    <div id="puzzle-title">Love can be puzzling, huh?</div>
     <div id="puzzle-grid"></div>
 </div>
 
-<!-- STAGE 2: Unblurred Castle & Question -->
+<!-- STAGE 2: Blurred Castle & Question -->
 <div id="stage-question" class="stage">
     <div class="question-card">
         <h2>This Castle is definitely worthy of my Birthday King. Cole, do you want to be my girlfriend?</h2>
@@ -224,9 +225,7 @@
 
 <!-- Game Logic & Clocks -->
 <script>
-    /* ==========================
-       DUAL CLOCK LOGIC
-    ========================== */
+    /* DUAL CLOCK LOGIC */
     function updateClocks() {
         const now = new Date();
         const options = { hour: '2-digit', minute: '2-digit', hour12: false };
@@ -239,31 +238,30 @@
     setInterval(updateClocks, 1000);
     updateClocks();
 
-    /* ==========================
-       4x4 SLIDING PUZZLE LOGIC
-    ========================== */
+    /* 3x3 SLIDING PUZZLE LOGIC */
     const grid = document.getElementById('puzzle-grid');
-    const size = 4;
-    const tileSize = 75; // px
-    let tiles = []; // Will hold current state
-    const solvedState = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+    const size = 3;
+    const tileSize = 100; // px
+    let tiles = []; 
+    const solvedState = [0,1,2,3,4,5,6,7,8]; // 8 is the empty tile
 
-    // Initialize and explicitly scramble to ensure it's always solvable
     function initPuzzle() {
         tiles = [...solvedState];
-        // Valid shuffle by moving the empty tile randomly
-        let emptyIndex = 15;
-        for (let i = 0; i < 200; i++) {
+        let emptyIndex = 8;
+        
+        // Scramble the puzzle using valid moves to ensure it remains solvable
+        for (let i = 0; i < 150; i++) {
             let moves = getValidMoves(emptyIndex);
             let randomMove = moves[Math.floor(Math.random() * moves.length)];
-            // Swap
             [tiles[emptyIndex], tiles[randomMove]] = [tiles[randomMove], tiles[emptyIndex]];
             emptyIndex = randomMove;
         }
         
         // Anti-cheat: Ensure it didn't accidentally land on the solved state
         if (JSON.stringify(tiles) === JSON.stringify(solvedState)) {
-            [tiles[0], tiles[1]] = [tiles[1], tiles[0]]; // force a swap just in case
+            let moves = getValidMoves(emptyIndex);
+            let nextMove = moves[0];
+            [tiles[emptyIndex], tiles[nextMove]] = [tiles[nextMove], tiles[emptyIndex]];
         }
         renderPuzzle();
     }
@@ -283,10 +281,9 @@
         grid.innerHTML = '';
         tiles.forEach((val, i) => {
             const tile = document.createElement('div');
-            tile.className = val === 15 ? 'tile empty' : 'tile';
+            tile.className = val === 8 ? 'tile empty' : 'tile';
             
-            if (val !== 15) {
-                // Calculate background position based on the original solved array value
+            if (val !== 8) {
                 const bgRow = Math.floor(val / size);
                 const bgCol = val % size;
                 tile.style.backgroundPosition = `-${bgCol * tileSize}px -${bgRow * tileSize}px`;
@@ -298,7 +295,7 @@
     }
 
     function handleTileClick(index) {
-        const emptyIndex = tiles.indexOf(15);
+        const emptyIndex = tiles.indexOf(8);
         const validMoves = getValidMoves(emptyIndex);
         
         if (validMoves.includes(index)) {
@@ -311,7 +308,6 @@
 
     function checkWin() {
         if (JSON.stringify(tiles) === JSON.stringify(solvedState)) {
-            // Give a tiny delay so she can see the final tile snap into place
             setTimeout(() => {
                 document.getElementById('stage-puzzle').classList.remove('active');
                 document.getElementById('stage-question').classList.add('active');
@@ -319,9 +315,7 @@
         }
     }
 
-    /* ==========================
-       STAGE TRANSITIONS
-    ========================== */
+    /* STAGE TRANSITIONS */
     function rejectOffer() {
         document.getElementById('rejection-text').style.display = 'block';
     }
