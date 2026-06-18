@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Day 4: Speyer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Satisfy&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
             --mint-bg: rgba(213, 229, 213, 0.95);
@@ -195,7 +195,7 @@
         }
 
         .monogram {
-            font-family: 'Dancing Script', cursive;
+            font-family: 'Satisfy', cursive;
             font-size: 2rem;
             color: var(--dark-green);
         }
@@ -324,7 +324,7 @@
             <div class="word-slot" id="slot-5"></div>
             <div class="word-slot" id="slot-6"></div>
         </div>
-        <div id="moves-counter">Moves Remaining: 10</div>
+        <div id="moves-counter">Moves Remaining: 12</div>
         <div id="grid"></div>
     </div>
 
@@ -390,7 +390,7 @@
         let secondCard = null;
         let lockBoard = false;
         let matchedPairs = 0;
-        let moves = 10;
+        let moves = 12;
 
         const grid = document.getElementById('grid');
         const movesDisplay = document.getElementById('moves-counter');
@@ -399,7 +399,7 @@
             grid.innerHTML = '';
             cardsArray = [];
             matchedPairs = 0;
-            moves = 10;
+            moves = 12;
             movesDisplay.innerText = `Moves Remaining: ${moves}`;
             
             // Clear Sentence
@@ -457,8 +457,12 @@
         function checkForMatch() {
             let isMatch = firstCard.dataset.pairId === secondCard.dataset.pairId;
             if (isMatch) {
+                // Extract data BEFORE disabling and resetting the variables
+                const matchedId = firstCard.dataset.pairId;
+                const matchedWord = firstCard.dataset.word;
+                
                 disableCards();
-                updateSentence(firstCard.dataset.pairId, firstCard.dataset.word);
+                updateSentence(matchedId, matchedWord);
                 matchedPairs++;
                 
                 if (matchedPairs === 6) {
