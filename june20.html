@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Day 4: Speyer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Dancing+Script:wght@700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mint-bg: rgba(213, 229, 213, 0.95);
+            --dark-green: #1e3a24;
+            --glass-bg: rgba(0, 0, 0, 0.55);
+            --glass-blur: blur(8px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Roboto', sans-serif;
+            touch-action: none;
+        }
+
+        #bg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('./June20.birds.blur.jpg');
+            background-size: cover;
+            background-position: center;
+            transition: background-image 1.5s ease-in-out;
+            z-index: 0;
+        }
+
+        /* Global Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: var(--mint-bg);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            z-index: 100;
+            color: var(--dark-green);
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .home-btn {
+            font-size: 1.2rem;
+            color: var(--dark-green);
+            text-decoration: none;
+            flex: 1;
+        }
+
+        .title {
+            font-size: 1.5rem;
+            text-align: center;
+            flex: 2;
+            white-space: nowrap;
+        }
+
+        .infinity {
+            font-family: Arial, sans-serif;
+            font-size: 1.3rem;
+            vertical-align: middle;
+        }
+
+        .clocks {
+            flex: 1;
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            font-size: 0.85rem;
+            line-height: 1.1;
+        }
+
+        /* Main Game Area */
+        #game-board {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100dvh - 60px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            z-index: 10;
+            transition: opacity 1s ease;
+            padding-top: 5vh;
+        }
+
+        #sentence-display {
+            display: flex;
+            gap: 8px;
+            font-size: 1.8rem;
+            color: #fff;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            min-height: 40px;
+        }
+
+        .word-slot {
+            width: 20px;
+            text-align: center;
+            border-bottom: 2px solid #fff;
+        }
+        .word-slot.filled {
+            border-bottom: none;
+            width: auto;
+        }
+
+        #moves-counter {
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.4);
+            padding: 4px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        /* The Grid */
+        #grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 12px;
+            width: 90%;
+            max-width: 400px;
+            aspect-ratio: 3 / 4;
+            perspective: 1000px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+        .shake { animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both; }
+
+        /* Cards */
+        .card {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .card-back {
+            background: #fdfbf7;
+            border: 2px solid var(--dark-green);
+        }
+
+        .monogram {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2rem;
+            color: var(--dark-green);
+        }
+
+        .card-front {
+            background: #fff;
+            transform: rotateY(180deg);
+            font-size: 2.5rem;
+        }
+
+        /* Payoff States (Question & Messages) */
+        .overlay-screen {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            height: calc(100dvh - 60px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            padding: 20px;
+        }
+
+        .glass-box {
+            background: var(--glass-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 12px;
+            padding: 30px 25px;
+            text-align: center;
+            color: #fff;
+            width: 90%;
+            max-width: 350px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .question-text {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--dark-green);
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 500;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #btn-nunca {
+            transition: top 0.2s, left 0.2s;
+            z-index: 50;
+        }
+
+        .message-text {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 300;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .swipe-indicator {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: rgba(255,255,255,0.8);
+            font-size: 0.9rem;
+            animation: bounce 2s infinite;
+        }
+
+        .swipe-indicator svg {
+            width: 24px;
+            height: 24px;
+            fill: rgba(255,255,255,0.8);
+            margin-bottom: 5px;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+
+    <header>
+        <a href="index.html" class="home-btn">&lt; Home</a>
+        <div class="title">Héctor + Nicole <span class="infinity">∞</span></div>
+        <div class="clocks">
+            <div id="cdmx-clock">--:--</div>
+            <div id="eu-clock">--:--</div>
+        </div>
+    </header>
+
+    <div id="game-board">
+        <div id="sentence-display">
+            <div class="word-slot" id="slot-1"></div>
+            <div class="word-slot" id="slot-2"></div>
+            <div class="word-slot" id="slot-3"></div>
+            <div class="word-slot" id="slot-4"></div>
+            <div class="word-slot" id="slot-5"></div>
+            <div class="word-slot" id="slot-6"></div>
+        </div>
+        <div id="moves-counter">Moves Remaining: 10</div>
+        <div id="grid"></div>
+    </div>
+
+    <div id="question-screen" class="overlay-screen">
+        <div class="glass-box">
+            <div class="question-text">¿ Quieres ser mi novia ?</div>
+            <div class="btn-group">
+                <button class="action-btn" id="btn-obvio">Obvio</button>
+                <button class="action-btn" id="btn-nunca">Nunca</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="payoff-1" class="overlay-screen">
+        <div class="glass-box">
+            <div class="message-text">
+                Google says that the Rose-ringed Parakeets and the Eurasian Kestrels are the most common birds in Speyer, keep your eyes open and if you see one send me a pic!
+            </div>
+        </div>
+        <div class="swipe-indicator">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 12l-1.41-1.41L13 16.17V4h-2v12.17l-5.58-5.59L4 12l8 8 8-8z"/>
+            </svg>
+            Swipe
+        </div>
+    </div>
+
+    <div id="payoff-2" class="overlay-screen">
+        <div class="glass-box">
+            <div class="message-text">
+                Have a wonderful day, bbg. I love you.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Clocks Logic ---
+        function updateClocks() {
+            const now = new Date();
+            const timeOpts = { hour: '2-digit', minute: '2-digit', hour12: false };
+            
+            const cdmxTime = now.toLocaleTimeString('en-US', { ...timeOpts, timeZone: 'America/Mexico_City' });
+            const euTime = now.toLocaleTimeString('en-US', { ...timeOpts, timeZone: 'Europe/Berlin' });
+            
+            document.getElementById('cdmx-clock').innerText = `CDMX: ${cdmxTime}`;
+            document.getElementById('eu-clock').innerText = `EU: ${euTime}`;
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+
+        // --- Game Logic Engine ---
+        const pairsConfig = [
+            { id: 1, e1: '🫍', e2: '🤿', word: '¿' },
+            { id: 2, e1: '🎂', e2: '🤴🏽', word: 'Quieres' },
+            { id: 3, e1: '🇲🇽', e2: '🇺🇸', word: 'ser' },
+            { id: 4, e1: '🦜', e2: '👀', word: 'mi' },
+            { id: 5, e1: '⚽️', e2: '⚾️', word: 'novia' },
+            { id: 6, e1: '👶🏼', e2: '👧🏼', word: '?' }
+        ];
+
+        let cardsArray = [];
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+        let matchedPairs = 0;
+        let moves = 10;
+
+        const grid = document.getElementById('grid');
+        const movesDisplay = document.getElementById('moves-counter');
+
+        function initGame() {
+            grid.innerHTML = '';
+            cardsArray = [];
+            matchedPairs = 0;
+            moves = 10;
+            movesDisplay.innerText = `Moves Remaining: ${moves}`;
+            
+            // Clear Sentence
+            for(let i=1; i<=6; i++) {
+                const slot = document.getElementById(`slot-${i}`);
+                slot.innerText = '';
+                slot.classList.remove('filled');
+            }
+
+            // Build array
+            pairsConfig.forEach(p => {
+                cardsArray.push({ id: p.id, emoji: p.e1, word: p.word });
+                cardsArray.push({ id: p.id, emoji: p.e2, word: p.word });
+            });
+
+            // Shuffle
+            cardsArray.sort(() => 0.5 - Math.random());
+
+            // Render
+            cardsArray.forEach((item) => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.pairId = item.id;
+                card.dataset.word = item.word;
+                
+                card.innerHTML = `
+                    <div class="card-face card-back">
+                        <span class="monogram">H & N</span>
+                    </div>
+                    <div class="card-face card-front">${item.emoji}</div>
+                `;
+                
+                card.addEventListener('click', flipCard);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flipped');
+
+            if (!firstCard) {
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            moves--;
+            movesDisplay.innerText = `Moves Remaining: ${moves}`;
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.pairId === secondCard.dataset.pairId;
+            if (isMatch) {
+                disableCards();
+                updateSentence(firstCard.dataset.pairId, firstCard.dataset.word);
+                matchedPairs++;
+                
+                if (matchedPairs === 6) {
+                    setTimeout(triggerWinState, 800);
+                } else if (moves === 0) {
+                    setTimeout(triggerFailState, 800);
+                }
+            } else {
+                unflipCards();
+            }
+        }
+
+        function disableCards() {
+            firstCard.removeEventListener('click', flipCard);
+            secondCard.removeEventListener('click', flipCard);
+            resetBoard();
+        }
+
+        function unflipCards() {
+            lockBoard = true;
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+                resetBoard();
+                if (moves === 0 && matchedPairs < 6) {
+                    triggerFailState();
+                }
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [firstCard, secondCard, lockBoard] = [null, null, false];
+        }
+
+        function updateSentence(id, word) {
+            const slot = document.getElementById(`slot-${id}`);
+            slot.innerText = word;
+            slot.classList.add('filled');
+        }
+
+        function triggerFailState() {
+            grid.classList.add('shake');
+            movesDisplay.innerText = "The cards are shifting! Try again...";
+            setTimeout(() => {
+                grid.classList.remove('shake');
+                initGame();
+            }, 1200);
+        }
+
+        // --- Transition States ---
+        const bgLayer = document.getElementById('bg-layer');
+        const gameBoard = document.getElementById('game-board');
+        const questionScreen = document.getElementById('question-screen');
+        const payoff1 = document.getElementById('payoff-1');
+        const payoff2 = document.getElementById('payoff-2');
+
+        function triggerWinState() {
+            gameBoard.style.opacity = '0';
+            setTimeout(() => {
+                gameBoard.style.display = 'none';
+                questionScreen.style.display = 'flex';
+                // Trigger reflow
+                void questionScreen.offsetWidth;
+                questionScreen.style.opacity = '1';
+            }, 1000);
+        }
+
+        // --- Evasion Logic ---
+        const btnNunca = document.getElementById('btn-nunca');
+        function evadeBtn(e) {
+            e.preventDefault();
+            const box = document.querySelector('#question-screen .glass-box').getBoundingClientRect();
+            
+            // Randomize position securely within screen bounds
+            const maxX = window.innerWidth - btnNunca.offsetWidth - 20;
+            const maxY = window.innerHeight - btnNunca.offsetHeight - 20;
+            
+            const randomX = Math.max(20, Math.floor(Math.random() * maxX));
+            const randomY = Math.max(80, Math.floor(Math.random() * maxY)); // Keep below header
+            
+            btnNunca.style.position = 'fixed';
+            btnNunca.style.left = `${randomX}px`;
+            btnNunca.style.top = `${randomY}px`;
+        }
+
+        btnNunca.addEventListener('mouseover', evadeBtn);
+        btnNunca.addEventListener('touchstart', evadeBtn);
+
+        // --- Obvio Click -> Payoff 1 ---
+        document.getElementById('btn-obvio').addEventListener('click', () => {
+            // Swap to crisp background
+            bgLayer.style.backgroundImage = "url('./June20.birds.original.png')";
+            
+            questionScreen.style.opacity = '0';
+            setTimeout(() => {
+                questionScreen.style.display = 'none';
+                payoff1.style.display = 'flex';
+                void payoff1.offsetWidth;
+                payoff1.style.opacity = '1';
+            }, 1000);
+        });
+
+        // --- Swipe Logic -> Payoff 2 ---
+        let touchstartY = 0;
+        let touchstartX = 0;
+
+        payoff1.addEventListener('touchstart', (e) => {
+            touchstartY = e.changedTouches[0].screenY;
+            touchstartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        payoff1.addEventListener('touchend', (e) => {
+            let touchendY = e.changedTouches[0].screenY;
+            let touchendX = e.changedTouches[0].screenX;
+            handleSwipe(touchendX, touchendY);
+        }, { passive: true });
+
+        function handleSwipe(endX, endY) {
+            const diffY = Math.abs(touchstartY - endY);
+            const diffX = Math.abs(touchstartX - endX);
+            
+            // If swipe distance is greater than 40px in any direction
+            if (diffY > 40 || diffX > 40) {
+                // Final background swap
+                bgLayer.style.backgroundImage = "url('./June20.HN.JPG')";
+                
+                payoff1.style.opacity = '0';
+                setTimeout(() => {
+                    payoff1.style.display = 'none';
+                    payoff2.style.display = 'flex';
+                    void payoff2.offsetWidth;
+                    payoff2.style.opacity = '1';
+                }, 1000);
+            }
+        }
+
+        // Boot
+        initGame();
+
+    </script>
+</body>
+</html>
