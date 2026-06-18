@@ -9,7 +9,7 @@
         :root {
             --mint-bg: rgba(213, 229, 213, 0.95);
             --dark-green: #1e3a24;
-            --glass-bg: rgba(0, 0, 0, 0.55);
+            --glass-bg: rgba(0, 0, 0, 0.30); /* Increased transparency */
             --glass-blur: blur(8px);
         }
 
@@ -40,8 +40,8 @@
             height: 100%;
             background-image: url('./June20.birds.blur.jpg');
             background-size: cover;
-            background-position: center;
-            transition: background-image 1.5s ease-in-out;
+            background-position: center center;
+            transition: background-image 1.5s ease-in-out, background-position 1.5s ease-in-out;
             z-index: 0;
         }
 
@@ -369,8 +369,8 @@
             const cdmxTime = now.toLocaleTimeString('en-US', { ...timeOpts, timeZone: 'America/Mexico_City' });
             const euTime = now.toLocaleTimeString('en-US', { ...timeOpts, timeZone: 'Europe/Berlin' });
             
-            document.getElementById('cdmx-clock').innerText = `CDMX: ${cdmxTime}`;
-            document.getElementById('eu-clock').innerText = `EU: ${euTime}`;
+            document.getElementById('cdmx-clock').innerText = `My time: ${cdmxTime}`;
+            document.getElementById('eu-clock').innerText = `Your time: ${euTime}`;
         }
         setInterval(updateClocks, 1000);
         updateClocks();
@@ -586,8 +586,9 @@
             
             // If swipe distance is greater than 40px in any direction
             if (diffY > 40 || diffX > 40) {
-                // Final background swap
+                // Final background swap and shifting positioning as low as possible
                 bgLayer.style.backgroundImage = "url('./June20.HN.JPG')";
+                bgLayer.style.backgroundPosition = "center bottom";
                 
                 payoff1.style.opacity = '0';
                 setTimeout(() => {
