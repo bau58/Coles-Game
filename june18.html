@@ -17,7 +17,7 @@
             -webkit-user-select: none;
         }
 
-        /* Top Header */
+        /* Mobile-First Flexbox Header */
         #top-bar {
             position: absolute;
             top: 0;
@@ -25,55 +25,57 @@
             width: 100%;
             background: rgba(213, 229, 213, 0.95); 
             color: #1e3a24; 
-            text-align: center;
-            padding: 12px 0;
+            padding: 10px 0;
             z-index: 50; 
             backdrop-filter: blur(10px);
             border-bottom: 1px solid rgba(255,255,255,0.3);
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             display: flex;
-            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            box-sizing: border-box;
         }
 
         #home-btn {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #1e3a24;
             text-decoration: none;
+            color: #1e3a24;
             font-weight: bold;
             font-size: 1rem;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background 0.2s;
+            padding: 5px 15px;
+            white-space: nowrap;
         }
 
-        #home-btn:active {
-            background: rgba(0,0,0,0.1);
+        .header-titles {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .couple-name {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 2.2rem;
-            font-weight: bold;
+            font-size: 1.8rem; /* Scaled down for mobile */
             letter-spacing: 2px;
             margin-bottom: 2px;
         }
 
         .clocks {
-            font-size: 0.75rem;
+            font-size: 0.7rem; /* Scaled down for mobile */
             color: #2c4a33;
             text-transform: uppercase;
             letter-spacing: 1px;
             display: flex;
-            gap: 20px;
+            gap: 15px;
             font-weight: bold;
         }
 
-        /* Main Container */
+        /* Invisible spacer to perfectly center the header text against the Home button */
+        .spacer {
+            width: 75px; 
+        }
+
+        /* Main Container (Auto-adapts to 9:16 mobile screens) */
         #content-container {
             position: relative;
             height: 100vh;
@@ -184,12 +186,12 @@
         .absent { background-color: #3a3a3c !important; border-color: #3a3a3c !important; }
 
         #clue-box {
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.95);
             color: #111;
             padding: 12px 20px;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1.1rem;
             text-align: center;
             margin-bottom: 20px;
             width: 85%;
@@ -224,7 +226,7 @@
             justify-content: center;
             align-items: center;
             text-transform: uppercase;
-            touch-action: manipulation; /* Prevents mobile double-tap zoom */
+            touch-action: manipulation;
         }
 
         .key.large {
@@ -301,25 +303,32 @@
 </head>
 <body>
 
+    <!-- Header -->
     <div id="top-bar">
         <a href="index.html" id="home-btn">&lt; Home</a>
-        <div class="couple-name">Héctor + Nicole &infin;</div>
-        <div class="clocks">
-            <span>My time: <span id="mx-time">--:--:--</span></span>
-            <span>Your time: <span id="eu-time">--:--:--</span></span>
+        <div class="header-titles">
+            <div class="couple-name">Héctor + Nicole ∞</div>
+            <div class="clocks">
+                <span>My time: <span id="mx-time">--:--:--</span></span>
+                <span>Your time: <span id="eu-time">--:--:--</span></span>
+            </div>
         </div>
+        <div class="spacer"></div>
     </div>
 
     <div id="content-container">
         <div class="overlay"></div>
 
+        <!-- 1. Intro Screen -->
         <div id="intro-screen">
             <h1>Do you want to be my girlfriend?</h1>
             <button id="btn-play" class="btn">Play to Answer</button>
         </div>
 
+        <!-- 2. Game Screen -->
         <div id="game-screen">
-            <div id="clue-box">Clue: Almost, but try harder!</div>
+            <!-- Starting Clue -->
+            <div id="clue-box">¿Quieres ser mi novia?</div>
             
             <div id="board">
                 <div class="row" id="row-0">
@@ -336,6 +345,7 @@
                 </div>
             </div>
 
+            <!-- Keyboard -->
             <div id="keyboard">
                 <div class="key-row">
                     <button class="key" data-key="Q">Q</button><button class="key" data-key="W">W</button><button class="key" data-key="E">E</button><button class="key" data-key="R">R</button><button class="key" data-key="T">T</button><button class="key" data-key="Y">Y</button><button class="key" data-key="U">U</button><button class="key" data-key="I">I</button><button class="key" data-key="O">O</button><button class="key" data-key="P">P</button>
@@ -350,6 +360,7 @@
         </div>
     </div>
 
+    <!-- 3. Final Shared Payoff Screen -->
     <div id="success-screen">
         <img src="June18.HN.JPG" alt="Nosotros">
         <div class="message-box">
@@ -359,7 +370,6 @@
     </div>
 
     <script>
-        /* --- CLOCKS --- */
         function updateClocks() {
             const now = new Date();
             const mxOptions = { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
@@ -370,7 +380,6 @@
         updateClocks();
         setInterval(updateClocks, 1000);
 
-        /* --- SCREEN TRANSITION --- */
         const introScreen = document.getElementById('intro-screen');
         const gameScreen = document.getElementById('game-screen');
         
@@ -383,7 +392,6 @@
             }, 500);
         });
 
-        /* --- WORDLE GAME LOGIC --- */
         const TARGET_WORD = "SISI";
         const WORD_LENGTH = 4;
         const MAX_GUESSES = 4;
@@ -397,11 +405,12 @@
             ['', '', '', '']
         ];
 
+        // Updated Clue Progression
         const clues = [
-            "Clue: Almost, but try harder!",
-            "Clue: Maybe it's in spanish?",
-            "Clue: Remember I'm repetitive...",
-            "Clue: Yes x 2 (in Spanish)"
+            "¿Quieres ser mi novia?", // Row 0
+            "Clue: Almost, but try harder!", // Row 1
+            "Clue: Maybe it's in Spanish?", // Row 2
+            "Clue: Yes x 2 (in Spanish)" // Row 3
         ];
 
         const clueBox = document.getElementById('clue-box');
@@ -443,7 +452,6 @@
 
         function checkGuess() {
             if (currentTile !== WORD_LENGTH) {
-                // Not enough letters
                 const row = document.getElementById(`row-${currentRow}`);
                 row.classList.add('shake');
                 setTimeout(() => row.classList.remove('shake'), 400);
@@ -452,7 +460,6 @@
 
             const currentGuess = guesses[currentRow].join('');
             
-            // Logic to color tiles
             let targetLetterCounts = {};
             for (let i = 0; i < TARGET_WORD.length; i++) {
                 targetLetterCounts[TARGET_WORD[i]] = (targetLetterCounts[TARGET_WORD[i]] || 0) + 1;
@@ -460,7 +467,6 @@
 
             const rowElement = document.getElementById(`row-${currentRow}`);
             
-            // Pass 1: Find Greens (Correct)
             for (let i = 0; i < WORD_LENGTH; i++) {
                 const tile = document.getElementById(`tile-${currentRow}-${i}`);
                 const letter = guesses[currentRow][i];
@@ -473,7 +479,6 @@
                 }
             }
 
-            // Pass 2: Find Yellows (Present) and Grays (Absent)
             for (let i = 0; i < WORD_LENGTH; i++) {
                 const tile = document.getElementById(`tile-${currentRow}-${i}`);
                 const letter = guesses[currentRow][i];
@@ -493,21 +498,17 @@
                 }
             }
 
-            // Check Win Condition
             if (currentGuess === TARGET_WORD) {
                 setTimeout(triggerWin, 800);
                 return;
             }
 
-            // Move to next row
             currentRow++;
             currentTile = 0;
 
-            // Update Clue or Reset Last Row if failed all 4
             if (currentRow < MAX_GUESSES) {
                 clueBox.innerText = clues[currentRow];
             } else {
-                // Fail-safe: if she misses the 4th guess, let her retry the last row endlessly
                 setTimeout(() => {
                     currentRow = 3; 
                     currentTile = 0;
@@ -525,7 +526,6 @@
             const successScreen = document.getElementById('success-screen');
             successScreen.style.display = 'flex';
             
-            // Small delay for a smooth fade-in effect
             setTimeout(() => {
                 successScreen.style.opacity = '1';
             }, 50);
