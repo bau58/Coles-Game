@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Koblenz - Héctor + Nicole</title>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { 
+            --mint: rgba(213, 229, 213, 0.95); 
+            --dark: #1e3a24; 
+        }
+
+        /* Global Reset & Base Setup */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100dvh; 
+            width: 100vw;
+            background: #fafafa; 
+            font-family: 'Roboto', sans-serif; 
+            overflow: hidden; /* Prevents scroll on mobile */
+            color: var(--dark);
+        }
+
+        /* Fixed Mint Header */
+        header { 
+            background: var(--mint); 
+            padding: 12px 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            color: var(--dark); 
+            font-family: 'Bebas Neue', sans-serif; 
+            position: fixed; 
+            width: 100%; 
+            top: 0; 
+            box-sizing: border-box; 
+            z-index: 100;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+
+        header a { text-decoration: none; color: inherit; flex: 1; }
+        header .title { flex: 2; text-align: center; }
+        header .clocks { flex: 1; text-align: right; font-size: 1rem; }
+
+        /* Full Screen Stage Containers */
+        .stage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-in-out;
+            opacity: 0;
+            pointer-events: none;
+            box-sizing: border-box;
+            padding-top: 60px; /* Offset for header */
+        }
+        
+        .stage.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* --- STAGE 1: PUZZLE --- */
+        #stage-puzzle {
+            background: #fdfdfd;
+        }
+        
+        #puzzle-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+            text-align: center;
+        }
+
+        #puzzle-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 75px); 
+            grid-template-rows: repeat(4, 75px); 
+            gap: 2px; 
+            background: #ccc; 
+            padding: 2px; 
+            border-radius: 4px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .tile { 
+            width: 75px; 
+            height: 75px; 
+            background-image: url('june19.castle.jpg'); 
+            background-size: 300px 300px; /* 4 * 75px */
+            cursor: pointer; 
+            transition: transform 0.15s ease-in-out;
+        }
+
+        .tile.empty {
+            background: transparent;
+            cursor: default;
+        }
+
+        /* --- STAGE 2: QUESTION REVEAL --- */
+        #stage-question {
+            background-image: url('june19.castle.original.JPG');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        /* Dark overlay to make text readable */
+        .question-card {
+            background: rgba(255, 255, 255, 0.85);
+            padding: 40px 20px;
+            border-radius: 12px;
+            width: 85%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .question-card h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            margin: 0 0 30px 0;
+            line-height: 1.2;
+            color: var(--dark);
+        }
+
+        .buttons { display: flex; flex-direction: column; gap: 15px; }
+        
+        .btn {
+            background: transparent;
+            border: 2px solid var(--dark);
+            color: var(--dark);
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem;
+            padding: 15px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn.primary { background: var(--dark); color: white; }
+        .btn.secondary { border: none; font-size: 0.9rem; font-weight: 400; opacity: 0.7; }
+        
+        #rejection-text {
+            display: none;
+            margin-top: 15px;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+
+        /* --- STAGE 3: FINAL REWARD --- */
+        #stage-reward {
+            background-image: url('June19.HectorCole.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .reward-overlay {
+            position: absolute;
+            bottom: 40px;
+            width: 85%;
+            background: rgba(0, 0, 0, 0.4);
+            padding: 25px 20px;
+            border-radius: 10px;
+            text-align: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .reward-overlay p {
+            color: white;
+            font-family: 'Roboto', sans-serif;
+            font-weight: 300;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin: 0;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+    <a href="index.html">&lt; Home</a>
+    <div class="title">Héctor + Nicole ∞</div>
+    <div class="clocks">
+        <span id="time-cdmx">--:--</span> | <span id="time-ams">--:--</span>
+    </div>
+</header>
+
+<!-- STAGE 1: 4x4 Sliding Puzzle -->
+<div id="stage-puzzle" class="stage active">
+    <div id="puzzle-title">Koblenz: Marksburg</div>
+    <div id="puzzle-grid"></div>
+</div>
+
+<!-- STAGE 2: Unblurred Castle & Question -->
+<div id="stage-question" class="stage">
+    <div class="question-card">
+        <h2>This Castle is definitely worthy of my Birthday King. Cole, do you want to be my girlfriend?</h2>
+        <div class="buttons">
+            <button class="btn primary" onclick="showReward()">YESSSSS</button>
+            <button class="btn secondary" onclick="rejectOffer()">No :(</button>
+        </div>
+        <p id="rejection-text">Aww, are you sure? Try again...</p>
+    </div>
+</div>
+
+<!-- STAGE 3: Romantic Photo & Text Overlay -->
+<div id="stage-reward" class="stage">
+    <div class="reward-overlay">
+        <p>Remember when we decided to skip work and just go to the zoo? I'm so in love with you... I'm so in love with our story, I'm so in love with us as a team and as friends and I can't wait for the story we're going to write. Have a wonderful day, my Birthday King. I love you! ❤️❤️</p>
+    </div>
+</div>
+
+<!-- Game Logic & Clocks -->
+<script>
+    /* ==========================
+       DUAL CLOCK LOGIC
+    ========================== */
+    function updateClocks() {
+        const now = new Date();
+        const options = { hour: '2-digit', minute: '2-digit', hour12: false };
+        
+        document.getElementById('time-cdmx').innerText = 
+            now.toLocaleTimeString('en-US', { ...options, timeZone: 'America/Mexico_City' });
+        document.getElementById('time-ams').innerText = 
+            now.toLocaleTimeString('en-US', { ...options, timeZone: 'Europe/Amsterdam' });
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    /* ==========================
+       4x4 SLIDING PUZZLE LOGIC
+    ========================== */
+    const grid = document.getElementById('puzzle-grid');
+    const size = 4;
+    const tileSize = 75; // px
+    let tiles = []; // Will hold current state
+    const solvedState = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+
+    // Initialize and explicitly scramble to ensure it's always solvable
+    function initPuzzle() {
+        tiles = [...solvedState];
+        // Valid shuffle by moving the empty tile randomly
+        let emptyIndex = 15;
+        for (let i = 0; i < 200; i++) {
+            let moves = getValidMoves(emptyIndex);
+            let randomMove = moves[Math.floor(Math.random() * moves.length)];
+            // Swap
+            [tiles[emptyIndex], tiles[randomMove]] = [tiles[randomMove], tiles[emptyIndex]];
+            emptyIndex = randomMove;
+        }
+        
+        // Anti-cheat: Ensure it didn't accidentally land on the solved state
+        if (JSON.stringify(tiles) === JSON.stringify(solvedState)) {
+            [tiles[0], tiles[1]] = [tiles[1], tiles[0]]; // force a swap just in case
+        }
+        renderPuzzle();
+    }
+
+    function getValidMoves(emptyIndex) {
+        let moves = [];
+        let row = Math.floor(emptyIndex / size);
+        let col = emptyIndex % size;
+        if (row > 0) moves.push(emptyIndex - size); // Up
+        if (row < size - 1) moves.push(emptyIndex + size); // Down
+        if (col > 0) moves.push(emptyIndex - 1); // Left
+        if (col < size - 1) moves.push(emptyIndex + 1); // Right
+        return moves;
+    }
+
+    function renderPuzzle() {
+        grid.innerHTML = '';
+        tiles.forEach((val, i) => {
+            const tile = document.createElement('div');
+            tile.className = val === 15 ? 'tile empty' : 'tile';
+            
+            if (val !== 15) {
+                // Calculate background position based on the original solved array value
+                const bgRow = Math.floor(val / size);
+                const bgCol = val % size;
+                tile.style.backgroundPosition = `-${bgCol * tileSize}px -${bgRow * tileSize}px`;
+            }
+            
+            tile.onclick = () => handleTileClick(i);
+            grid.appendChild(tile);
+        });
+    }
+
+    function handleTileClick(index) {
+        const emptyIndex = tiles.indexOf(15);
+        const validMoves = getValidMoves(emptyIndex);
+        
+        if (validMoves.includes(index)) {
+            // Swap clicked tile with empty tile
+            [tiles[emptyIndex], tiles[index]] = [tiles[index], tiles[emptyIndex]];
+            renderPuzzle();
+            checkWin();
+        }
+    }
+
+    function checkWin() {
+        if (JSON.stringify(tiles) === JSON.stringify(solvedState)) {
+            // Give a tiny delay so she can see the final tile snap into place
+            setTimeout(() => {
+                document.getElementById('stage-puzzle').classList.remove('active');
+                document.getElementById('stage-question').classList.add('active');
+            }, 400);
+        }
+    }
+
+    /* ==========================
+       STAGE TRANSITIONS
+    ========================== */
+    function rejectOffer() {
+        document.getElementById('rejection-text').style.display = 'block';
+    }
+
+    function showReward() {
+        document.getElementById('stage-question').classList.remove('active');
+        document.getElementById('stage-reward').classList.add('active');
+    }
+
+    // Start Game
+    initPuzzle();
+</script>
+</body>
+</html>
