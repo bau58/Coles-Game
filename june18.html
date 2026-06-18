@@ -1,535 +1,427 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>June 18 - Cologne</title>
+    <title>Day 2: June 18 - Cologne</title>
+    <!-- Imported Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
-        body, html {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            height: 100%;
-            font-family: 'Roboto', sans-serif;
-            overflow: hidden;
-            background-color: #1a1a1a;
-            user-select: none;
-            -webkit-user-select: none;
         }
 
-        /* Mobile-First Flexbox Header */
-        #top-bar {
-            position: absolute;
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url('ColeyHector.png');
+            background-size: cover;
+            /* Pushes the image alignment to the left so your faces don't get cropped out */
+            background-position: left center; 
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* --- FIXED HEADER SYSTEM --- */
+        .fixed-header {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            background: rgba(213, 229, 213, 0.95); 
-            color: #1e3a24; 
-            padding: 10px 0;
-            z-index: 50; 
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.3);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            height: 60px;
+            background-color: rgba(213, 229, 213, 0.95); /* Pastel Mint Green */
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            box-sizing: border-box;
+            justify-content: space-between;
+            padding: 0 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
 
-        #home-btn {
+        .header-left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-button {
             text-decoration: none;
             color: #1e3a24;
-            font-weight: bold;
-            font-size: 1rem;
-            padding: 5px 15px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            transition: opacity 0.2s;
+        }
+
+        .back-button:active {
+            opacity: 0.6;
+        }
+
+        .header-center {
+            flex: 2;
+            text-align: center;
+        }
+
+        .header-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.4rem;
+            color: #1e3a24;
+            letter-spacing: 1px;
             white-space: nowrap;
         }
 
-        .header-titles {
+        .header-right {
             flex: 1;
-            text-align: center;
             display: flex;
             flex-direction: column;
-            align-items: center;
-        }
-
-        .couple-name {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 1.8rem; /* Scaled down for mobile */
-            letter-spacing: 2px;
-            margin-bottom: 2px;
-        }
-
-        .clocks {
-            font-size: 0.7rem; /* Scaled down for mobile */
-            color: #2c4a33;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            display: flex;
-            gap: 15px;
-            font-weight: bold;
-        }
-
-        /* Invisible spacer to perfectly center the header text against the Home button */
-        .spacer {
-            width: 75px; 
-        }
-
-        /* Main Container (Auto-adapts to 9:16 mobile screens) */
-        #content-container {
-            position: relative;
-            height: 100vh;
-            width: 100vw;
-            background-image: url('June18Cologne.jpg');
-            background-size: cover;
-            background-position: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
-            padding-top: 60px; /* Offset for header */
-            box-sizing: border-box;
-        }
-
-        /* Overlay to make text/game readable */
-        .overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.4);
-            z-index: 1;
-        }
-
-        /* Screen 1: Intro */
-        #intro-screen {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.75);
-            padding: 30px;
-            border-radius: 12px;
-            color: white;
-            backdrop-filter: blur(5px);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
-            max-width: 85%;
-            transition: opacity 0.5s ease;
-        }
-
-        #intro-screen h1 {
-            font-size: 1.6rem;
-            margin-bottom: 25px;
-            line-height: 1.3;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .btn {
             font-family: 'Roboto', sans-serif;
-            font-size: 1.2rem;
-            padding: 12px 35px;
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            font-size: 0.65rem;
+            color: #1e3a24;
             font-weight: bold;
-            transition: transform 0.1s ease;
-            box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
+            line-height: 1.2;
         }
 
-        .btn:active {
-            transform: scale(0.95);
+        /* --- GAME CONTAINER & MECHANICS --- */
+        .game-container {
+            background-color: rgba(255, 255, 255, 0.92);
+            border-radius: 16px;
+            padding: 20px;
+            width: 90%;
+            max-width: 360px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            text-align: center;
+            margin-top: 60px; /* Accounts for fixed header */
         }
 
-        /* Screen 2: Game */
-        #game-screen {
-            position: relative;
-            z-index: 10;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            max-width: 400px;
-            opacity: 0;
-            transition: opacity 0.5s ease;
+        .game-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.2rem;
+            color: #1e3a24;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
         }
 
-        #board {
+        .game-subtitle {
+            font-size: 0.9rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .wordle-grid {
             display: grid;
             grid-template-rows: repeat(4, 1fr);
-            grid-gap: 8px;
-            margin-bottom: 15px;
+            gap: 8px;
+            margin-bottom: 20px;
         }
 
-        .row {
+        .wordle-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            grid-gap: 8px;
+            gap: 8px;
         }
 
         .tile {
-            width: 60px;
-            height: 60px;
-            border: 2px solid #565758;
-            background-color: rgba(18, 18, 19, 0.85);
-            color: white;
-            font-size: 2rem;
-            font-weight: bold;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-transform: uppercase;
-            backdrop-filter: blur(4px);
-        }
-
-        /* Tile States */
-        .correct { background-color: #538d4e !important; border-color: #538d4e !important; }
-        .present { background-color: #b59f3b !important; border-color: #b59f3b !important; }
-        .absent { background-color: #3a3a3c !important; border-color: #3a3a3c !important; }
-
-        #clue-box {
-            background: rgba(255, 255, 255, 0.95);
-            color: #111;
-            padding: 12px 20px;
+            aspect-ratio: 1;
+            border: 2px solid #ccc;
             border-radius: 8px;
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-align: center;
-            margin-bottom: 20px;
-            width: 85%;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            min-height: 24px;
-        }
-
-        #keyboard {
-            width: 95%;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
             display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .key-row {
-            display: flex;
+            align-items: center;
             justify-content: center;
-            gap: 6px;
+            text-transform: uppercase;
+            background-color: #fff;
+            color: #333;
+            transition: all 0.3s ease;
         }
 
-        .key {
-            background-color: #818384;
+        .tile.correct {
+            background-color: #6cab64;
+            border-color: #6cab64;
+            color: white;
+        }
+
+        .tile.present {
+            background-color: #c9b458;
+            border-color: #c9b458;
+            color: white;
+        }
+
+        .tile.absent {
+            background-color: #787c7e;
+            border-color: #787c7e;
+            color: white;
+        }
+
+        .input-section {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+
+        .word-input {
+            flex: 1;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid #1e3a24;
+            border-radius: 8px;
+            text-align: center;
+            text-transform: uppercase;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+        }
+
+        .word-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(30, 58, 36, 0.2);
+        }
+
+        .submit-btn {
+            background-color: #1e3a24;
             color: white;
             border: none;
-            border-radius: 4px;
-            height: 45px;
-            flex: 1;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-transform: uppercase;
-            touch-action: manipulation;
+            padding: 0 20px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            letter-spacing: 1px;
         }
 
-        .key.large {
-            flex: 1.5;
+        .submit-btn:active {
+            opacity: 0.9;
+        }
+
+        .hint-box {
             font-size: 0.85rem;
-        }
-
-        .key:active {
-            background-color: #565758;
-        }
-
-        /* Screen 3: Success */
-        #success-screen {
-            display: none;
-            position: fixed; 
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #000;
-            z-index: 100; 
+            color: #666;
+            min-height: 35px;
+            font-style: italic;
+            display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 0;
-            transition: opacity 1s ease;
+            padding: 0 10px;
         }
 
-        #success-screen img {
-            position: absolute;
+        /* --- PAYOFF MODAL --- */
+        .payoff-overlay {
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover; 
-            z-index: 1;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        #success-screen .message-box {
-            position: relative;
-            z-index: 2;
-            color: white;
-            text-align: center;
-            margin: 0 25px;
-            background: rgba(0, 0, 0, 0.75);
+        .payoff-card {
+            background-color: white;
+            border-radius: 20px;
             padding: 25px;
-            border-radius: 12px;
-            backdrop-filter: blur(4px);
-            box-shadow: 0 8px 25px rgba(0,0,0,0.8);
+            width: 100%;
+            max-width: 340px;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        #success-screen h2 {
-            font-size: 1.4rem;
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .payoff-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            color: #1e3a24;
+            margin-bottom: 15px;
+        }
+
+        .payoff-text {
+            font-size: 1rem;
             line-height: 1.5;
-            margin: 0 0 15px 0;
-        }
-        
-        #success-screen p {
-            font-size: 1.1rem;
-            margin: 0;
-            color: #2ecc71;
-            font-weight: bold;
+            color: #333;
+            margin-bottom: 20px;
         }
 
-        /* Shake Animation for wrong words */
-        @keyframes shake {
-            0% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            50% { transform: translateX(5px); }
-            75% { transform: translateX(-5px); }
-            100% { transform: translateX(0); }
+        .close-payoff-btn {
+            background-color: #1e3a24;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 12px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            letter-spacing: 1px;
         }
-        .shake { animation: shake 0.4s; }
     </style>
 </head>
 <body>
 
-    <!-- Header -->
-    <div id="top-bar">
-        <a href="index.html" id="home-btn">&lt; Home</a>
-        <div class="header-titles">
-            <div class="couple-name">Héctor + Nicole ∞</div>
-            <div class="clocks">
-                <span>My time: <span id="mx-time">--:--:--</span></span>
-                <span>Your time: <span id="eu-time">--:--:--</span></span>
+    <!-- FIXED HEADER -->
+    <header class="fixed-header">
+        <div class="header-left">
+            <a href="index.html" class="back-button">&lt; HOME</a>
+        </div>
+        <div class="header-center">
+            <!-- Fixed raw infinity symbol string -->
+            <div class="header-title">Héctor + Nicole ∞</div>
+        </div>
+        <div class="header-right">
+            <div id="clock-cdmx">CDMX --:--</div>
+            <div id="clock-ams">AMS --:--</div>
+        </div>
+    </header>
+
+    <!-- WORDLE PUZZLE BOX -->
+    <div class="game-container">
+        <h1 class="game-title">The Cologne Riddle</h1>
+        <p class="game-subtitle">Guess the 4-letter secret key word</p>
+
+        <div class="wordle-grid" id="grid">
+            <!-- Row 1 -->
+            <div class="wordle-row">
+                <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+            </div>
+            <!-- Row 2 -->
+            <div class="wordle-row">
+                <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+            </div>
+            <!-- Row 3 -->
+            <div class="wordle-row">
+                <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
+            </div>
+            <!-- Row 4 -->
+            <div class="wordle-row">
+                <div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div>
             </div>
         </div>
-        <div class="spacer"></div>
+
+        <div class="input-section">
+            <input type="text" id="guessInput" class="word-input" maxlength="4" placeholder="????" autofocus>
+            <button id="submitBtn" class="submit-btn">GO</button>
+        </div>
+
+        <div class="hint-box" id="hintBox">First attempt reveals a dynamic hint...</div>
     </div>
 
-    <div id="content-container">
-        <div class="overlay"></div>
-
-        <!-- 1. Intro Screen -->
-        <div id="intro-screen">
-            <h1>Do you want to be my girlfriend?</h1>
-            <button id="btn-play" class="btn">Play to Answer</button>
-        </div>
-
-        <!-- 2. Game Screen -->
-        <div id="game-screen">
-            <!-- Starting Clue -->
-            <div id="clue-box">¿Quieres ser mi novia?</div>
-            
-            <div id="board">
-                <div class="row" id="row-0">
-                    <div class="tile" id="tile-0-0"></div><div class="tile" id="tile-0-1"></div><div class="tile" id="tile-0-2"></div><div class="tile" id="tile-0-3"></div>
-                </div>
-                <div class="row" id="row-1">
-                    <div class="tile" id="tile-1-0"></div><div class="tile" id="tile-1-1"></div><div class="tile" id="tile-1-2"></div><div class="tile" id="tile-1-3"></div>
-                </div>
-                <div class="row" id="row-2">
-                    <div class="tile" id="tile-2-0"></div><div class="tile" id="tile-2-1"></div><div class="tile" id="tile-2-2"></div><div class="tile" id="tile-2-3"></div>
-                </div>
-                <div class="row" id="row-3">
-                    <div class="tile" id="tile-3-0"></div><div class="tile" id="tile-3-1"></div><div class="tile" id="tile-3-2"></div><div class="tile" id="tile-3-3"></div>
-                </div>
-            </div>
-
-            <!-- Keyboard -->
-            <div id="keyboard">
-                <div class="key-row">
-                    <button class="key" data-key="Q">Q</button><button class="key" data-key="W">W</button><button class="key" data-key="E">E</button><button class="key" data-key="R">R</button><button class="key" data-key="T">T</button><button class="key" data-key="Y">Y</button><button class="key" data-key="U">U</button><button class="key" data-key="I">I</button><button class="key" data-key="O">O</button><button class="key" data-key="P">P</button>
-                </div>
-                <div class="key-row">
-                    <button class="key" data-key="A">A</button><button class="key" data-key="S">S</button><button class="key" data-key="D">D</button><button class="key" data-key="F">F</button><button class="key" data-key="G">G</button><button class="key" data-key="H">H</button><button class="key" data-key="J">J</button><button class="key" data-key="K">K</button><button class="key" data-key="L">L</button>
-                </div>
-                <div class="key-row">
-                    <button class="key large" data-key="ENTER">ENTER</button><button class="key" data-key="Z">Z</button><button class="key" data-key="X">X</button><button class="key" data-key="C">C</button><button class="key" data-key="V">V</button><button class="key" data-key="B">B</button><button class="key" data-key="N">N</button><button class="key" data-key="M">M</button><button class="key large" data-key="BACKSPACE">⌫</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 3. Final Shared Payoff Screen -->
-    <div id="success-screen">
-        <img src="June18.HN.JPG" alt="Nosotros">
-        <div class="message-box">
-            <h2>It took 632 years to finish the Cologne Cathedral..crazy!<br><br>But it's crazier that I'm going to love you even longer than that.</h2>
-            <p>5ever! Enjoy your day! ❤️</p>
+    <!-- SECRET UNLOCKED PAYOFF MODAL -->
+    <div class="payoff-overlay" id="payoffModal">
+        <div class="payoff-card">
+            <h2 class="payoff-title">Unlocked!</h2>
+            <p class="payoff-text" id="payoffMessage">
+                "Thinking of you wandering through Cologne today. You are my absolute favorite person, and no distance changes that. Have a beautiful day near the Cathedral! ❤️"
+            </p>
+            <button class="close-payoff-btn" onclick="document.getElementById('payoffModal').style.display='none'">Close</button>
         </div>
     </div>
 
     <script>
+        // Real-Time Clocks Engine
         function updateClocks() {
             const now = new Date();
-            const mxOptions = { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            const euOptions = { timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
-            document.getElementById('mx-time').innerText = now.toLocaleTimeString('en-US', mxOptions);
-            document.getElementById('eu-time').innerText = now.toLocaleTimeString('en-US', euOptions);
+            
+            const optionsCDMX = { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hour12: false };
+            document.getElementById('clock-cdmx').textContent = 'CDMX ' + now.toLocaleTimeString('en-US', optionsCDMX);
+            
+            const optionsAMS = { timeZone: 'Europe/Amsterdam', hour: '2-digit', minute: '2-digit', hour12: false };
+            document.getElementById('clock-ams').textContent = 'AMS ' + now.toLocaleTimeString('en-US', optionsAMS);
         }
-        updateClocks();
         setInterval(updateClocks, 1000);
+        updateClocks();
 
-        const introScreen = document.getElementById('intro-screen');
-        const gameScreen = document.getElementById('game-screen');
-        
-        document.getElementById('btn-play').addEventListener('click', () => {
-            introScreen.style.opacity = '0';
-            setTimeout(() => {
-                introScreen.style.display = 'none';
-                gameScreen.style.display = 'flex';
-                setTimeout(() => gameScreen.style.opacity = '1', 50);
-            }, 500);
-        });
-
-        const TARGET_WORD = "SISI";
-        const WORD_LENGTH = 4;
-        const MAX_GUESSES = 4;
-        
+        // 4x4 Wordle Game Logic
+        const SOLUTION = "SISI";
         let currentRow = 0;
-        let currentTile = 0;
-        let guesses = [
-            ['', '', '', ''],
-            ['', '', '', ''],
-            ['', '', '', ''],
-            ['', '', '', '']
+        
+        const hints = [
+            "Hint: Think of a famous Empress of Austria associated with Bavaria and beauty...",
+            "Hint: It's a nickname! Four letters, repeating halves.",
+            "Hint: It sounds like saying 'Yes' twice in Spanish!",
+            "Come on, you've got this! It's S _ S _"
         ];
 
-        // Updated Clue Progression
-        const clues = [
-            "¿Quieres ser mi novia?", // Row 0
-            "Clue: Almost, but try harder!", // Row 1
-            "Clue: Maybe it's in Spanish?", // Row 2
-            "Clue: Yes x 2 (in Spanish)" // Row 3
-        ];
+        const submitBtn = document.getElementById('submitBtn');
+        const guessInput = document.getElementById('guessInput');
+        const hintBox = document.getElementById('hintBox');
+        const gridRows = document.querySelectorAll('.wordle-row');
 
-        const clueBox = document.getElementById('clue-box');
-        const keys = document.querySelectorAll('.key');
-
-        keys.forEach(key => {
-            key.addEventListener('click', () => {
-                handleKeyPress(key.getAttribute('data-key'));
-            });
-        });
-
-        function handleKeyPress(letter) {
-            if (letter === 'BACKSPACE') {
-                deleteLetter();
-            } else if (letter === 'ENTER') {
-                checkGuess();
-            } else {
-                addLetter(letter);
-            }
-        }
-
-        function addLetter(letter) {
-            if (currentTile < WORD_LENGTH && currentRow < MAX_GUESSES) {
-                guesses[currentRow][currentTile] = letter;
-                const tile = document.getElementById(`tile-${currentRow}-${currentTile}`);
-                tile.innerText = letter;
-                currentTile++;
-            }
-        }
-
-        function deleteLetter() {
-            if (currentTile > 0) {
-                currentTile--;
-                guesses[currentRow][currentTile] = '';
-                const tile = document.getElementById(`tile-${currentRow}-${currentTile}`);
-                tile.innerText = '';
-            }
-        }
-
-        function checkGuess() {
-            if (currentTile !== WORD_LENGTH) {
-                const row = document.getElementById(`row-${currentRow}`);
-                row.classList.add('shake');
-                setTimeout(() => row.classList.remove('shake'), 400);
+        function handleGuess() {
+            const guess = guessInput.value.toUpperCase();
+            
+            if (guess.length !== 4) {
+                alert("The word must be exactly 4 letters!");
                 return;
             }
 
-            const currentGuess = guesses[currentRow].join('');
-            
-            let targetLetterCounts = {};
-            for (let i = 0; i < TARGET_WORD.length; i++) {
-                targetLetterCounts[TARGET_WORD[i]] = (targetLetterCounts[TARGET_WORD[i]] || 0) + 1;
-            }
+            const tiles = gridRows[currentRow].querySelectorAll('.tile');
+            let solutionLetterCounts = { S: 2, I: 2 }; 
 
-            const rowElement = document.getElementById(`row-${currentRow}`);
-            
-            for (let i = 0; i < WORD_LENGTH; i++) {
-                const tile = document.getElementById(`tile-${currentRow}-${i}`);
-                const letter = guesses[currentRow][i];
-                const keyBtn = document.querySelector(`.key[data-key="${letter}"]`);
-
-                if (TARGET_WORD[i] === letter) {
-                    tile.classList.add('correct');
-                    keyBtn.classList.add('correct');
-                    targetLetterCounts[letter]--;
+            // First pass: Mark correct green spots
+            for (let i = 0; i < 4; i++) {
+                tiles[i].textContent = guess[i];
+                if (guess[i] === SOLUTION[i]) {
+                    tiles[i].classList.add('correct');
+                    solutionLetterCounts[guess[i]]--;
                 }
             }
 
-            for (let i = 0; i < WORD_LENGTH; i++) {
-                const tile = document.getElementById(`tile-${currentRow}-${i}`);
-                const letter = guesses[currentRow][i];
-                const keyBtn = document.querySelector(`.key[data-key="${letter}"]`);
-
-                if (!tile.classList.contains('correct')) {
-                    if (targetLetterCounts[letter] > 0) {
-                        tile.classList.add('present');
-                        if (!keyBtn.classList.contains('correct')) keyBtn.classList.add('present');
-                        targetLetterCounts[letter]--;
+            // Second pass: Mark yellow present/gray absent spots
+            for (let i = 0; i < 4; i++) {
+                if (guess[i] !== SOLUTION[i]) {
+                    if (SOLUTION.includes(guess[i]) && solutionLetterCounts[guess[i]] > 0) {
+                        tiles[i].classList.add('present');
+                        solutionLetterCounts[guess[i]]--;
                     } else {
-                        tile.classList.add('absent');
-                        if (!keyBtn.classList.contains('correct') && !keyBtn.classList.contains('present')) {
-                            keyBtn.classList.add('absent');
-                        }
+                        tiles[i].classList.add('absent');
                     }
                 }
             }
 
-            if (currentGuess === TARGET_WORD) {
-                setTimeout(triggerWin, 800);
+            // Check Win Condition
+            if (guess === SOLUTION) {
+                setTimeout(() => {
+                    document.getElementById('payoffModal').style.display = 'flex';
+                    hintBox.textContent = "Perfect! Puzzle Solved.";
+                }, 500);
+                guessInput.disabled = true;
+                submitBtn.disabled = true;
                 return;
             }
 
+            // Move to Next Row or End Game
+            hintBox.textContent = hints[currentRow] || "Keep trying!";
             currentRow++;
-            currentTile = 0;
+            guessInput.value = '';
 
-            if (currentRow < MAX_GUESSES) {
-                clueBox.innerText = clues[currentRow];
-            } else {
-                setTimeout(() => {
-                    currentRow = 3; 
-                    currentTile = 0;
-                    guesses[3] = ['', '', '', ''];
-                    for(let i=0; i<4; i++) {
-                        let t = document.getElementById(`tile-3-${i}`);
-                        t.innerText = '';
-                        t.className = 'tile';
-                    }
-                }, 1000);
+            if (currentRow >= 4) {
+                guessInput.disabled = true;
+                submitBtn.disabled = true;
+                hintBox.textContent = "Game over! The code was SISI. Refresh to try again!";
             }
         }
 
-        function triggerWin() {
-            const successScreen = document.getElementById('success-screen');
-            successScreen.style.display = 'flex';
-            
-            setTimeout(() => {
-                successScreen.style.opacity = '1';
-            }, 50);
-        }
+        submitBtn.addEventListener('click', handleGuess);
+        guessInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleGuess();
+        });
     </script>
 </body>
 </html>
