@@ -1,9 +1,11 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Day 6 - Strasbourg</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700&family=Satisfy&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700&display=swap');
 
         * {
             box-sizing: border-box;
@@ -25,7 +27,7 @@
             align-items: center;
         }
 
-        /* 9:16 Aspect Ratio Lock for Desktop Viewers (Fills screen on mobile) */
+        /* 9:16 Aspect Ratio Lock for Desktop Viewers */
         #app-container {
             position: relative;
             width: 100vw;
@@ -35,7 +37,7 @@
             overflow: hidden;
         }
 
-        /* Background Layering */
+        /* Background Layering with robust CSS Fallbacks */
         #background {
             position: absolute;
             top: 0;
@@ -45,12 +47,29 @@
             background-size: cover;
             background-position: center;
             z-index: 1;
-            transition: background-image 1.5s ease-in-out;
+            transition: all 1.5s ease-in-out;
         }
 
-        .bg-sharp { background-image: url('June21.backgorund.original.jpg'); }
-        .bg-blurred { background-image: url('June21.backgorund.blurred.jpg'); }
-        .bg-hn { background-image: url('June21.HN.jpg'); }
+        /* Fallbacks in case local images are missing */
+        .bg-sharp { 
+            background-image: url('June21.backgorund.original.jpg');
+            background-color: #2c3e50;
+            background-image: linear-gradient(135deg, #1e3a24, #2c3e50), url('June21.backgorund.original.jpg');
+            background-blend-mode: overlay;
+        }
+        .bg-blurred { 
+            background-image: url('June21.backgorund.blurred.jpg');
+            background-color: #1e3a24;
+            background-image: linear-gradient(135deg, rgba(30,58,36,0.8), rgba(44,62,80,0.8)), url('June21.backgorund.blurred.jpg');
+            background-blend-mode: overlay;
+            filter: blur(8px);
+        }
+        .bg-hn { 
+            background-image: url('June21.HN.jpg');
+            background-color: #e74c3c;
+            background-image: linear-gradient(135deg, rgba(231,76,60,0.8), rgba(192,57,43,0.8)), url('June21.HN.jpg');
+            background-blend-mode: overlay;
+        }
 
         /* Global Header */
         #header {
@@ -102,7 +121,7 @@
         /* Screens Base */
         .screen {
             position: absolute;
-            top: 60px; /* Below header */
+            top: 60px;
             left: 0;
             width: 100%;
             height: calc(100% - 60px);
@@ -124,16 +143,16 @@
 
         /* Cards and Overlays */
         .overlay-card {
-            background: rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             padding: 25px 20px;
             border-radius: 15px;
             text-align: center;
             color: #fff;
             width: 90%;
             max-width: 350px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
         .overlay-text {
@@ -166,7 +185,7 @@
 
         .btn-group { display: flex; justify-content: center; gap: 15px; }
 
-        /* Hearts Animation System */
+        /* Hearts Animation */
         #hearts-container {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -188,19 +207,19 @@
             100% { transform: translateY(-100vh) scale(1) rotate(-15deg); opacity: 0; }
         }
 
-        /* Canvas Game (State 2B) */
+        /* Canvas Game */
         #game-board {
             background: rgba(0,0,0,0.6);
             border-radius: 10px;
             border: 2px solid rgba(213, 229, 213, 0.5);
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 20px rgba(0,0,0,0.8);
         }
 
-        /* State 3 (Cheese Payoff) */
+        /* State 3 */
         #state3 { justify-content: space-between; padding-top: 40px; padding-bottom: 40px; }
         
         .subtle-top-text {
-            background: rgba(0, 0, 0, 0.35);
+            background: rgba(0, 0, 0, 0.5);
             padding: 15px;
             border-radius: 10px;
             color: #fff;
@@ -208,21 +227,21 @@
             text-align: center;
             line-height: 1.4;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-            backdrop-filter: blur(3px);
+            backdrop-filter: blur(5px);
         }
 
         #cheese-img {
             width: 200px;
             height: auto;
             object-fit: contain;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));
         }
 
-        /* Swipe to Open Slider */
+        /* Swipe to Open */
         .slider-container {
             width: 250px;
             height: 55px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             border-radius: 30px;
             border: 1px solid rgba(255,255,255,0.2);
             position: relative;
@@ -230,6 +249,7 @@
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
         }
 
         .slider-text {
@@ -257,13 +277,13 @@
             transition: left 0.1s;
         }
 
-        /* State 4 (Grand Finale) */
+        /* State 4 */
         #state4 { justify-content: flex-end; padding-bottom: 30px; }
         
         .letter-card {
-            background: rgba(0, 0, 0, 0.30);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             padding: 25px 20px;
             border-radius: 15px;
             color: #fff;
@@ -287,19 +307,16 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
         }
 
-        .final-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
         .btn-final {
             width: 100%;
             background: rgba(213, 229, 213, 0.2);
             border: 1px solid rgba(213, 229, 213, 0.5);
             font-size: 20px;
         }
-    </style></head><body><div id="app-container">
+    </style>
+</head>
+<body>
+<div id="app-container">
     <div id="background" class="bg-sharp"></div>
 
     <div id="header">
@@ -328,7 +345,7 @@
     <div id="state2a" class="screen">
         <div class="overlay-card">
             <div class="overlay-text">
-                Connect the matching icons (guess what pair of icons go together, think of me taking you on a date 😉...first hint: wine goes with cheese). Fill every single square on the board to win. Paths cannot cross!
+                Connect the matching icons (guess what icons go together, think date 😉...first hint: wine goes with cheese). Fill every single square on the board to win. Paths cannot cross!
             </div>
             <button class="btn" onclick="startGame()">START</button>
         </div>
@@ -340,7 +357,7 @@
 
     <div id="state3" class="screen">
         <div class="subtle-top-text">
-            Have so much fun in this cute town! Enjoy this time with your family—it's precious! I've been to this region and love the Munster cheese. Also, you're close to Switzerland, keep an eye out for my favorite cheese : Tête de Moine. I love the taste, but honestly, I might like it so much because of the special gadget used to shave it. If you have time, try them for me and let me know what you think!
+            Have so much fun in this cute town! Enjoy this time with your family—it's precious! I've been to this region and love the Munster cheese. Also, you're close to Switzerland, keep an eye out for my favorite cheese: Tête de Moine. I love the taste, but honestly, I might like it so much because of the special gadget used to shave it. If you have time, try them for me and let me know what you think!
         </div>
         
         <img id="cheese-img" src="June21.Cheese.png" alt="Tête de Moine" onerror="this.style.display='none';">
@@ -360,13 +377,14 @@
                 <button class="btn btn-final" onclick="window.location.href='index.html'">BACK HOME</button>
             </div>
         </div>
-    </div></div><script>
+    </div>
+</div>
+
+<script>
     // --- Dual Clocks Logic ---
     function updateClocks() {
         const now = new Date();
-        
         const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false };
-        
         const cdmxTime = new Intl.DateTimeFormat('en-US', { ...optionsTime, timeZone: 'America/Mexico_City' }).format(now);
         const strasTime = new Intl.DateTimeFormat('en-US', { ...optionsTime, timeZone: 'Europe/Berlin' }).format(now);
         
@@ -384,7 +402,6 @@
         }, 800);
     }
 
-    // --- Flow Logic ---
     function triggerNo() {
         const text = document.querySelector('#state1 .overlay-text');
         text.innerText = "Are you sure? Try clicking YES... 😉";
@@ -401,11 +418,9 @@
                 heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
                 heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
                 container.appendChild(heart);
-                
                 setTimeout(() => heart.remove(), 5000);
             }, i * 100);
         }
-
         document.getElementById('background').className = 'bg-blurred';
         switchState('state1', 'state2a');
     }
@@ -420,101 +435,11 @@
     const ctx = canvas.getContext('2d');
     const GRID_SIZE = 7;
     let CELL_SIZE = 45;
-    
-    // Pixel Art Engine
-    const art = {
-        cathedral: {
-            data: [
-                "   xx   ",
-                "  xxxx  ",
-                "  xxxx  ",
-                " xxxxxx ",
-                " xxxxxx ",
-                " xxxxxx ",
-                " xx  xx ",
-                " xx  xx "
-            ],
-            colors: { 'x': '#95a5a6' }
-        },
-        timber: {
-            data: [
-                "   RR   ",
-                "  RRRR  ",
-                " RRRRRR ",
-                "RRRRRRRR",
-                " WWWWWW ",
-                " WDWWWW ",
-                " WDWWDW ",
-                " WDWWDW "
-            ],
-            colors: { 'R': '#8d6e63', 'W': '#ecf0f1', 'D': '#5d4037' }
-        },
-        bridge: {
-            data: [
-                " xx  xx ",
-                " xx  xx ",
-                " xxxxxx ",
-                " xxxxxx ",
-                " xx  xx ",
-                " xx  xx ",
-                " xx  xx ",
-                " xx  xx "
-            ],
-            colors: { 'x': '#bdc3c7' }
-        },
-        binoculars: {
-            data: [
-                " xx  xx ",
-                " xx  xx ",
-                " xxxxxx ",
-                "xxx  xxx",
-                "xxx  xxx",
-                "xxx  xxx",
-                "xxx  xxx",
-                "xxx  xxx"
-            ],
-            colors: { 'x': '#2c3e50' }
-        },
-        stork: {
-            data: [
-                "       R",
-                "      R ",
-                "   WWWW ",
-                "  WWWW  ",
-                " WWWW   ",
-                " WW     ",
-                "  R     ",
-                "  R     "
-            ],
-            colors: { 'W': '#ecf0f1', 'R': '#e74c3c' }
-        }
-    };
-
-    function drawPixelArt(ctx, x, y, size, artObj) {
-        const artArray = artObj.data;
-        const colors = artObj.colors;
-        const rows = artArray.length;
-        const cols = artArray[0].length;
-        const pxWidth = size / cols;
-        const pxHeight = size / rows;
-        const startX = x - size/2;
-        const startY = y - size/2;
-        for(let r=0; r<rows; r++) {
-            for(let c=0; c<cols; c++) {
-                const char = artArray[r][c];
-                if(char !== ' ') {
-                    ctx.fillStyle = colors[char];
-                    // +0.5 mitigates sub-pixel rendering gaps
-                    ctx.fillRect(startX + c*pxWidth, startY + r*pxHeight, pxWidth + 0.5, pxHeight + 0.5); 
-                }
-            }
-        }
-    }
 
     function resizeCanvas() {
-        const maxWidth = window.innerWidth * 0.9;
+        const maxWidth = window.innerWidth * 0.95;
         const maxHeight = (window.innerHeight - 60) * 0.6;
-        const size = Math.floor(Math.min(maxWidth, maxHeight, 350));
+        const size = Math.floor(Math.min(maxWidth, maxHeight, 400));
         CELL_SIZE = size / GRID_SIZE;
         canvas.width = size;
         canvas.height = size;
@@ -522,284 +447,21 @@
     }
     window.addEventListener('resize', resizeCanvas);
 
-    // 8-Bit Obstacles
-    const obstacles = [
-        {x: 1, y: 1, type: 'cathedral'}, 
-        {x: 3, y: 3, type: 'timber'}, 
-        {x: 5, y: 5, type: 'bridge'}
-    ];
-
-    // New Icons Mapping
-    const pairsData = [
-        { id: 1, color: '#e74c3c', icon1: '🍷', icon2: '🧀', s: {x:0, y:0}, e: {x:0, y:6} },
-        { id: 2, color: '#f39c12', icon1: '☕', icon2: '🥐', s: {x:2, y:0}, e: {x:2, y:6} },
-        { id: 3, color: '#2ecc71', icon1: 'CUSTOM_BINOCULARS', icon2: 'CUSTOM_STORK', s: {x:4, y:0}, e: {x:4, y:6} },
-        { id: 4, color: '#9b59b6', icon1: '💐', icon2: '💌', s: {x:6, y:0}, e: {x:6, y:6} },
-        { id: 5, color: '#3498db', icon1: '😏', icon2: '🛏️', s: {x:0, y:3}, e: {x:6, y:3} }
-    ];
-
-    let paths = { 1:[], 2:[], 3:[], 4:[], 5:[] };
-    let currentPairId = null;
-
-    function initGame() {
-        resizeCanvas();
-        paths = { 1:[], 2:[], 3:[], 4:[], 5:[] };
-        drawGrid();
-    }
-
-    function drawGrid() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // --- Vector Icon Rendering Engine ---
+    function drawBinoculars(ctx, x, y, size) {
+        ctx.save();
+        ctx.translate(x, y);
+        const w = size * 0.4;
+        const h = size * 0.55;
+        const gap = size * 0.1;
         
-        // Lines
-        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-        ctx.lineWidth = 1;
-        for(let i=0; i<=GRID_SIZE; i++) {
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 2;
+
+        ctx.fillStyle = '#2c3e50';
+        
+        // Custom rounded rect drawing for universal support
+        function fillRoundRect(x, y, w, h, r) {
             ctx.beginPath();
-            ctx.moveTo(i * CELL_SIZE, 0); ctx.lineTo(i * CELL_SIZE, canvas.height);
-            ctx.stroke();
-            ctx.beginPath();
-            ctx.moveTo(0, i * CELL_SIZE); ctx.lineTo(canvas.width, i * CELL_SIZE);
-            ctx.stroke();
-        }
-
-        // Paths
-        for(let id in paths) {
-            const path = paths[id];
-            if(path.length > 0) {
-                const pair = pairsData.find(p => p.id == id);
-                ctx.strokeStyle = pair.color;
-                ctx.lineWidth = CELL_SIZE * 0.4;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                
-                ctx.beginPath();
-                ctx.moveTo(path[0].x * CELL_SIZE + CELL_SIZE/2, path[0].y * CELL_SIZE + CELL_SIZE/2);
-                for(let i=1; i<path.length; i++) {
-                    ctx.lineTo(path[i].x * CELL_SIZE + CELL_SIZE/2, path[i].y * CELL_SIZE + CELL_SIZE/2);
-                }
-                ctx.stroke();
-            }
-        }
-
-        // Obstacles (8-Bit Render)
-        obstacles.forEach(o => {
-            drawPixelArt(ctx, o.x * CELL_SIZE + CELL_SIZE/2, o.y * CELL_SIZE + CELL_SIZE/2, CELL_SIZE * 0.7, art[o.type]);
-        });
-
-        // Endpoints (Icons/Pixel Art)
-        ctx.font = `${CELL_SIZE*0.6}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        
-        pairsData.forEach(p => {
-            // Start Icon
-            if(p.icon1.startsWith('CUSTOM_')) {
-                const type = p.icon1.split('_')[1].toLowerCase();
-                drawPixelArt(ctx, p.s.x * CELL_SIZE + CELL_SIZE/2, p.s.y * CELL_SIZE + CELL_SIZE/2, CELL_SIZE * 0.7, art[type]);
-            } else {
-                ctx.fillText(p.icon1, p.s.x * CELL_SIZE + CELL_SIZE/2, p.s.y * CELL_SIZE + CELL_SIZE/2);
-            }
-
-            // End Icon
-            if(p.icon2.startsWith('CUSTOM_')) {
-                const type = p.icon2.split('_')[1].toLowerCase();
-                drawPixelArt(ctx, p.e.x * CELL_SIZE + CELL_SIZE/2, p.e.y * CELL_SIZE + CELL_SIZE/2, CELL_SIZE * 0.7, art[type]);
-            } else {
-                ctx.fillText(p.icon2, p.e.x * CELL_SIZE + CELL_SIZE/2, p.e.y * CELL_SIZE + CELL_SIZE/2);
-            }
-        });
-    }
-
-    function getCell(e) {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const x = Math.floor((clientX - rect.left) / CELL_SIZE);
-        const y = Math.floor((clientY - rect.top) / CELL_SIZE);
-        if(x>=0 && x<GRID_SIZE && y>=0 && y<GRID_SIZE) return {x, y};
-        return null;
-    }
-
-    function isObstacle(x, y) {
-        return obstacles.some(o => o.x === x && o.y === y);
-    }
-
-    function getPairAt(x, y) {
-        for(let p of pairsData) {
-            if((p.s.x === x && p.s.y === y) || (p.e.x === x && p.e.y === y)) return p.id;
-        }
-        return null;
-    }
-
-    function getPathAt(x, y) {
-        for(let id in paths) {
-            const idx = paths[id].findIndex(pos => pos.x === x && pos.y === y);
-            if(idx !== -1) return {id: parseInt(id), index: idx};
-        }
-        return null;
-    }
-
-    function vibrate() {
-        if(navigator.vibrate) navigator.vibrate(50);
-    }
-
-    function handleStart(e) {
-        e.preventDefault();
-        const cell = getCell(e);
-        if(!cell) return;
-
-        const pairId = getPairAt(cell.x, cell.y);
-        if(pairId) {
-            currentPairId = pairId;
-            paths[pairId] = [{x: cell.x, y: cell.y}];
-            drawGrid();
-        } else {
-            const existingPath = getPathAt(cell.x, cell.y);
-            if(existingPath) {
-                currentPairId = existingPath.id;
-                paths[currentPairId] = paths[currentPairId].slice(0, existingPath.index + 1);
-                drawGrid();
-            }
-        }
-    }
-
-    function handleMove(e) {
-        e.preventDefault();
-        if(!currentPairId) return;
-        const cell = getCell(e);
-        if(!cell) return;
-
-        const path = paths[currentPairId];
-        const lastPos = path[path.length - 1];
-
-        // Same cell
-        if(lastPos.x === cell.x && lastPos.y === cell.y) return;
-
-        // Adjacency check
-        const dx = Math.abs(lastPos.x - cell.x);
-        const dy = Math.abs(lastPos.y - cell.y);
-        if((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
-            
-            // Backtracking
-            if(path.length > 1 && path[path.length-2].x === cell.x && path[path.length-2].y === cell.y) {
-                path.pop();
-                drawGrid();
-                return;
-            }
-
-            // Validity checks
-            if(isObstacle(cell.x, cell.y)) { vibrate(); return; }
-            
-            const existingPathInfo = getPathAt(cell.x, cell.y);
-            if(existingPathInfo) {
-                if(existingPathInfo.id !== currentPairId) { vibrate(); return; } 
-            }
-
-            const targetPairId = getPairAt(cell.x, cell.y);
-            if(targetPairId && targetPairId !== currentPairId) { vibrate(); return; } 
-
-            const pairData = pairsData.find(p => p.id === currentPairId);
-            const isEndpoint = (pairData.s.x === cell.x && pairData.s.y === cell.y) || 
-                               (pairData.e.x === cell.x && pairData.e.y === cell.y);
-
-            // Add to path
-            path.push({x: cell.x, y: cell.y});
-            drawGrid();
-            checkWinCondition();
-        }
-    }
-
-    function handleEnd(e) {
-        e.preventDefault();
-        currentPairId = null;
-    }
-
-    canvas.addEventListener('touchstart', handleStart, {passive: false});
-    canvas.addEventListener('touchmove', handleMove, {passive: false});
-    canvas.addEventListener('touchend', handleEnd, {passive: false});
-    
-    // Mouse fallback
-    canvas.addEventListener('mousedown', handleStart);
-    canvas.addEventListener('mousemove', (e) => { if(e.buttons === 1) handleMove(e); });
-    canvas.addEventListener('mouseup', handleEnd);
-
-    function checkWinCondition() {
-        let totalPathCells = 0;
-        let connectedPairs = 0;
-
-        for(let id in paths) {
-            const path = paths[id];
-            if(path.length > 0) {
-                const pair = pairsData.find(p => p.id == id);
-                const first = path[0];
-                const last = path[path.length-1];
-                const reachesStart = (first.x === pair.s.x && first.y === pair.s.y) || (last.x === pair.s.x && last.y === pair.s.y);
-                const reachesEnd = (first.x === pair.e.x && first.y === pair.e.y) || (last.x === pair.e.x && last.y === pair.e.y);
-                
-                if(reachesStart && reachesEnd && path.length > 1) {
-                    connectedPairs++;
-                    totalPathCells += path.length;
-                }
-            }
-        }
-
-        if(connectedPairs === 5) {
-            const coveredCells = new Set();
-            for(let id in paths) {
-                paths[id].forEach(pos => coveredCells.add(`${pos.x},${pos.y}`));
-            }
-            obstacles.forEach(o => coveredCells.add(`${o.x},${o.y}`));
-            
-            if(coveredCells.size === 49) {
-                setTimeout(() => {
-                    document.getElementById('background').className = 'bg-sharp';
-                    switchState('state2b', 'state3');
-                }, 500);
-            }
-        }
-    }
-
-    // --- Swipe Logic (State 3 -> 4) ---
-    const slider = document.getElementById('swipe-slider');
-    const thumb = document.getElementById('swipe-thumb');
-    let isDragging = false;
-    let startX = 0;
-
-    thumb.addEventListener('touchstart', (e) => {
-        isDragging = true;
-        startX = e.touches[0].clientX - thumb.offsetLeft;
-    });
-
-    thumb.addEventListener('touchmove', (e) => {
-        if(!isDragging) return;
-        let x = e.touches[0].clientX - startX;
-        let max = slider.offsetWidth - thumb.offsetWidth - 5;
-        if(x < 5) x = 5;
-        if(x > max) x = max;
-        thumb.style.left = x + 'px';
-
-        if(x >= max - 5) {
-            isDragging = false;
-            triggerFinale();
-        }
-    });
-
-    thumb.addEventListener('touchend', () => {
-        isDragging = false;
-        let max = slider.offsetWidth - thumb.offsetWidth - 5;
-        if(parseInt(thumb.style.left) < max - 5) {
-            thumb.style.left = '5px';
-        }
-    });
-
-    function triggerFinale() {
-        document.getElementById('state3').classList.remove('active');
-        document.getElementById('background').className = 'bg-hn';
-        
-        setTimeout(() => {
-            document.getElementById('state4').classList.add('active');
-            setTimeout(() => {
-                document.getElementById('final-letter').classList.add('slide-up');
-            }, 100);
-        }, 3000);
-    }</script></body></html>
+            ctx.moveTo(x +
