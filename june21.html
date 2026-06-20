@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Day 6 - Strasbourg</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;500;700&family=Satisfy&display=swap');
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100dvh;
+            background-color: #000;
+            overflow: hidden;
+            touch-action: none;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 9:16 Aspect Ratio Lock for Desktop Viewers (Fills screen on mobile) */
+        #app-container {
+            position: relative;
+            width: 100vw;
+            height: 100dvh;
+            max-width: calc(100dvh * (9 / 16));
+            background-color: #111;
+            overflow: hidden;
+        }
+
+        /* Background Layering */
+        #background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+            transition: background-image 1.5s ease-in-out;
+        }
+
+        .bg-sharp { background-image: url('June21.backgorund.original.jpg'); }
+        .bg-blurred { background-image: url('June21.backgorund.blurred.jpg'); }
+        .bg-hn { background-image: url('June21.HN.jpg'); }
+
+        /* Global Header */
+        #header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(213, 229, 213, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            color: #1e3a24;
+        }
+
+        #header a {
+            font-family: 'Bebas Neue', sans-serif;
+            text-decoration: none;
+            color: #1e3a24;
+            font-size: 20px;
+            flex: 1;
+        }
+
+        #header .title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            text-align: center;
+            flex: 2;
+            letter-spacing: 1px;
+        }
+
+        #header .title span { font-family: Arial, sans-serif; }
+
+        #header .clocks {
+            font-family: 'Roboto', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            text-align: right;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        /* Screens Base */
+        .screen {
+            position: absolute;
+            top: 60px; /* Below header */
+            left: 0;
+            width: 100%;
+            height: calc(100% - 60px);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease-in-out;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Cards and Overlays */
+        .overlay-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            padding: 25px 20px;
+            border-radius: 15px;
+            text-align: center;
+            color: #fff;
+            width: 90%;
+            max-width: 350px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .overlay-text {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            font-weight: 400;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+
+        .btn {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            letter-spacing: 2px;
+            transition: background 0.3s, transform 0.1s;
+            margin: 5px;
+        }
+
+        .btn:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+
+        .btn-group { display: flex; justify-content: center; gap: 15px; }
+
+        /* Hearts Animation System */
+        #hearts-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 50; pointer-events: none; overflow: hidden;
+        }
+
+        .floating-heart {
+            position: absolute;
+            bottom: -50px;
+            color: #e74c3c;
+            font-size: 24px;
+            animation: floatUp 4s ease-in forwards;
+            opacity: 0;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(0.5); opacity: 1; }
+            50% { transform: translateY(-40vh) scale(1.2) rotate(15deg); opacity: 0.8; }
+            100% { transform: translateY(-100vh) scale(1) rotate(-15deg); opacity: 0; }
+        }
+
+        /* Canvas Game (State 2B) */
+        #game-board {
+            background: rgba(0,0,0,0.6);
+            border-radius: 10px;
+            border: 2px solid rgba(213, 229, 213, 0.5);
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* State 3 (Cheese Payoff) */
+        #state3 { justify-content: space-between; padding-top: 40px; padding-bottom: 40px; }
+        
+        .subtle-top-text {
+            background: rgba(0, 0, 0, 0.35);
+            padding: 15px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            text-align: center;
+            line-height: 1.4;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+            backdrop-filter: blur(3px);
+        }
+
+        #cheese-img {
+            width: 200px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+        }
+
+        /* Swipe to Open Slider */
+        .slider-container {
+            width: 250px;
+            height: 55px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .slider-text {
+            font-family: 'Bebas Neue', sans-serif;
+            color: rgba(255,255,255,0.6);
+            font-size: 20px;
+            letter-spacing: 2px;
+            z-index: 1;
+        }
+
+        .slider-thumb {
+            position: absolute;
+            left: 5px;
+            width: 45px;
+            height: 45px;
+            background: rgba(213, 229, 213, 0.9);
+            border-radius: 50%;
+            z-index: 2;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #1e3a24;
+            font-size: 20px;
+            transition: left 0.1s;
+        }
+
+        /* State 4 (Grand Finale) */
+        #state4 { justify-content: flex-end; padding-bottom: 30px; }
+        
+        .letter-card {
+            background: rgba(0, 0, 0, 0.30);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 25px 20px;
+            border-radius: 15px;
+            color: #fff;
+            width: 95%;
+            max-width: 380px;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: transform 0.8s cubic-bezier(0.1, 1, 0.1, 1), opacity 0.8s ease;
+        }
+
+        .letter-card.slide-up {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .letter-text {
+            font-family: 'Roboto', sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+        }
+
+        .final-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-final {
+            width: 100%;
+            background: rgba(213, 229, 213, 0.2);
+            border: 1px solid rgba(213, 229, 213, 0.5);
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app-container">
+    <div id="background" class="bg-sharp"></div>
+
+    <div id="header">
+        <a href="index.html">&lt; Home</a>
+        <div class="title">Héctor + Nicole <span style="font-family: Arial;">∞</span></div>
+        <div class="clocks">
+            <div id="clock-cdmx">My time: --:--</div>
+            <div id="clock-strasbourg">Your time: --:--</div>
+        </div>
+    </div>
+
+    <div id="hearts-container"></div>
+
+    <div id="state1" class="screen active">
+        <div class="overlay-card">
+            <div class="overlay-text">
+                Cole, will you be my girlfriend? If you say yes, I'll take you on the most romantic date in Strasbourg... What do you say?
+            </div>
+            <div class="btn-group">
+                <button class="btn" onclick="triggerYes()">YES</button>
+                <button class="btn" onclick="triggerNo()">NO</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="state2a" class="screen">
+        <div class="overlay-card">
+            <div class="overlay-text">
+                Connect the matching icons (guess what icons go together, think date 😉...first hint: wine goes with cheese). Fill every single square on the board to win. Paths cannot cross!
+            </div>
+            <button class="btn" onclick="startGame()">START</button>
+        </div>
+    </div>
+
+    <div id="state2b" class="screen">
+        <canvas id="game-board" width="315" height="315"></canvas>
+    </div>
+
+    <div id="state3" class="screen">
+        <div class="subtle-top-text">
+            Have so much fun in this cute town! Enjoy this time with your family—it's precious! I've been to this region and love the Munster cheese. Also, you're close to Switzerland, keep an eye out for my favorite cheese : Tête de Moine. I love the taste, but honestly, I might like it so much because of the special gadget used to shave it. If you have time, try them for me and let me know what you think!
+        </div>
+        
+        <img id="cheese-img" src="June21.Cheese.png" alt="Tête de Moine" onerror="this.style.display='none';">
+        
+        <div class="slider-container" id="swipe-slider">
+            <div class="slider-text">SWIPE TO OPEN</div>
+            <div class="slider-thumb" id="swipe-thumb">&gt;</div>
+        </div>
+    </div>
+
+    <div id="state4" class="screen">
+        <div class="letter-card" id="final-letter">
+            <div class="letter-text">
+                My sweet Cole, you came to rock my world in the best way possible. I feel like I'm walking on clouds when I'm with you, and I miss you every moment we're apart. I can't wait to see you soon, but more than that... I want to help you pack, bring you and Lux to Mexico, and make this picture our everyday life. I want to spend all my time with you. I want to share everything with you. I want to witness your life by your side, and be a part of it all. Te amo, mucho, mucho. Mucho. 💚🤍❤️
+            </div>
+            <div class="final-actions">
+                <button class="btn btn-final" onclick="window.location.href='index.html'">BACK HOME</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // --- Dual Clocks Logic ---
+    function updateClocks() {
+        const now = new Date();
+        
+        const optionsTime = { hour: '2-digit', minute: '2-digit', hour12: false };
+        
+        const cdmxTime = new Intl.DateTimeFormat('en-US', { ...optionsTime, timeZone: 'America/Mexico_City' }).format(now);
+        const strasTime = new Intl.DateTimeFormat('en-US', { ...optionsTime, timeZone: 'Europe/Berlin' }).format(now);
+        
+        document.getElementById('clock-cdmx').innerText = `My time: ${cdmxTime}`;
+        document.getElementById('clock-strasbourg').innerText = `Your time: ${strasTime}`;
+    }
+    setInterval(updateClocks, 1000);
+    updateClocks();
+
+    // --- State Management ---
+    function switchState(hideId, showId) {
+        document.getElementById(hideId).classList.remove('active');
+        setTimeout(() => {
+            document.getElementById(showId).classList.add('active');
+        }, 800);
+    }
+
+    // --- Flow Logic ---
+    function triggerNo() {
+        const text = document.querySelector('#state1 .overlay-text');
+        text.innerText = "Are you sure? Try clicking YES... 😉";
+    }
+
+    function triggerYes() {
+        // Heart Cascade
+        const container = document.getElementById('hearts-container');
+        for(let i=0; i<30; i++) {
+            setTimeout(() => {
+                const heart = document.createElement('div');
+                heart.innerHTML = '❤️';
+                heart.className = 'floating-heart';
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                heart.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                container.appendChild(heart);
+                
+                setTimeout(() => heart.remove(), 5000);
+            }, i * 100);
+        }
+
+        // Change Background to blurred
+        document.getElementById('background').className = 'bg-blurred';
+        
+        switchState('state1', 'state2a');
+    }
+
+    function startGame() {
+        switchState('state2a', 'state2b');
+        initGame();
+    }
+
+    // --- Canvas Free Flow Game Engine ---
+    const canvas = document.getElementById('game-board');
+    const ctx = canvas.getContext('2d');
+    const GRID_SIZE = 7;
+    let CELL_SIZE = 45;
+    
+    // Fit canvas dynamically
+    function resizeCanvas() {
+        const maxWidth = window.innerWidth * 0.9;
+        const maxHeight = (window.innerHeight - 60) * 0.6;
+        const size = Math.floor(Math.min(maxWidth, maxHeight, 350));
+        CELL_SIZE = size / GRID_SIZE;
+        canvas.width = size;
+        canvas.height = size;
+        drawGrid();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // Game Data
+    // Level Design: 7x7. 5 Pairs, 3 Obstacles. Must be 100% fillable.
+    // Obstacles (rock emoji): (1,1), (3,3), (5,5)
+    // P1 (Wine/Cheese): {0,0} & {0,6}
+    // P2 (Baguette/Grape): {2,0} & {2,6}
+    // P3 (Rose/Candle): {4,0} & {4,6}
+    // P4 (Ticket/Popcorn): {6,0} & {6,6}
+    // P5 (Choc/Strawberry): {0,3} & {6,3}
+    
+    const obstacles = [
+        {x: 1, y: 1}, {x: 3, y: 3}, {x: 5, y: 5}
+    ];
+
+    const pairsData = [
+        { id: 1, color: '#e74c3c', icon1: '🍷', icon2: '🧀', s: {x:0, y:0}, e: {x:0, y:6} },
+        { id: 2, color: '#f39c12', icon1: '🥖', icon2: '🍇', s: {x:2, y:0}, e: {x:2, y:6} },
+        { id: 3, color: '#2ecc71', icon1: '🌹', icon2: '🕯️', s: {x:4, y:0}, e: {x:4, y:6} },
+        { id: 4, color: '#9b59b6', icon1: '🎟️', icon2: '🍿', s: {x:6, y:0}, e: {x:6, y:6} },
+        { id: 5, color: '#3498db', icon1: '🍫', icon2: '🍓', s: {x:0, y:3}, e: {x:6, y:3} }
+    ];
+
+    let paths = { 1:[], 2:[], 3:[], 4:[], 5:[] };
+    let currentPairId = null;
+
+    function initGame() {
+        resizeCanvas();
+        paths = { 1:[], 2:[], 3:[], 4:[], 5:[] };
+        drawGrid();
+    }
+
+    function drawGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Lines
+        ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+        ctx.lineWidth = 1;
+        for(let i=0; i<=GRID_SIZE; i++) {
+            ctx.beginPath();
+            ctx.moveTo(i * CELL_SIZE, 0); ctx.lineTo(i * CELL_SIZE, canvas.height);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(0, i * CELL_SIZE); ctx.lineTo(canvas.width, i * CELL_SIZE);
+            ctx.stroke();
+        }
+
+        // Paths
+        for(let id in paths) {
+            const path = paths[id];
+            if(path.length > 0) {
+                const pair = pairsData.find(p => p.id == id);
+                ctx.strokeStyle = pair.color;
+                ctx.lineWidth = CELL_SIZE * 0.4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                ctx.beginPath();
+                ctx.moveTo(path[0].x * CELL_SIZE + CELL_SIZE/2, path[0].y * CELL_SIZE + CELL_SIZE/2);
+                for(let i=1; i<path.length; i++) {
+                    ctx.lineTo(path[i].x * CELL_SIZE + CELL_SIZE/2, path[i].y * CELL_SIZE + CELL_SIZE/2);
+                }
+                ctx.stroke();
+            }
+        }
+
+        // Obstacles
+        ctx.font = `${CELL_SIZE*0.6}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        obstacles.forEach(o => {
+            ctx.fillText('🧱', o.x * CELL_SIZE + CELL_SIZE/2, o.y * CELL_SIZE + CELL_SIZE/2);
+        });
+
+        // Endpoints (Icons)
+        pairsData.forEach(p => {
+            ctx.fillText(p.icon1, p.s.x * CELL_SIZE + CELL_SIZE/2, p.s.y * CELL_SIZE + CELL_SIZE/2);
+            ctx.fillText(p.icon2, p.e.x * CELL_SIZE + CELL_SIZE/2, p.e.y * CELL_SIZE + CELL_SIZE/2);
+        });
+    }
+
+    function getCell(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = Math.floor((clientX - rect.left) / CELL_SIZE);
+        const y = Math.floor((clientY - rect.top) / CELL_SIZE);
+        if(x>=0 && x<GRID_SIZE && y>=0 && y<GRID_SIZE) return {x, y};
+        return null;
+    }
+
+    function isObstacle(x, y) {
+        return obstacles.some(o => o.x === x && o.y === y);
+    }
+
+    function getPairAt(x, y) {
+        for(let p of pairsData) {
+            if((p.s.x === x && p.s.y === y) || (p.e.x === x && p.e.y === y)) return p.id;
+        }
+        return null;
+    }
+
+    function getPathAt(x, y) {
+        for(let id in paths) {
+            const idx = paths[id].findIndex(pos => pos.x === x && pos.y === y);
+            if(idx !== -1) return {id: parseInt(id), index: idx};
+        }
+        return null;
+    }
+
+    function vibrate() {
+        if(navigator.vibrate) navigator.vibrate(50);
+    }
+
+    function handleStart(e) {
+        e.preventDefault();
+        const cell = getCell(e);
+        if(!cell) return;
+
+        const pairId = getPairAt(cell.x, cell.y);
+        if(pairId) {
+            currentPairId = pairId;
+            paths[pairId] = [{x: cell.x, y: cell.y}];
+            drawGrid();
+        } else {
+            const existingPath = getPathAt(cell.x, cell.y);
+            if(existingPath) {
+                currentPairId = existingPath.id;
+                paths[currentPairId] = paths[currentPairId].slice(0, existingPath.index + 1);
+                drawGrid();
+            }
+        }
+    }
+
+    function handleMove(e) {
+        e.preventDefault();
+        if(!currentPairId) return;
+        const cell = getCell(e);
+        if(!cell) return;
+
+        const path = paths[currentPairId];
+        const lastPos = path[path.length - 1];
+
+        // Same cell
+        if(lastPos.x === cell.x && lastPos.y === cell.y) return;
+
+        // Adjacency check
+        const dx = Math.abs(lastPos.x - cell.x);
+        const dy = Math.abs(lastPos.y - cell.y);
+        if((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
+            
+            // Backtracking
+            if(path.length > 1 && path[path.length-2].x === cell.x && path[path.length-2].y === cell.y) {
+                path.pop();
+                drawGrid();
+                return;
+            }
+
+            // Validity checks
+            if(isObstacle(cell.x, cell.y)) { vibrate(); return; }
+            
+            const existingPathInfo = getPathAt(cell.x, cell.y);
+            if(existingPathInfo) {
+                if(existingPathInfo.id !== currentPairId) { vibrate(); return; } // Crossed another path
+            }
+
+            const targetPairId = getPairAt(cell.x, cell.y);
+            if(targetPairId && targetPairId !== currentPairId) { vibrate(); return; } // Hit wrong endpoint
+
+            const pairData = pairsData.find(p => p.id === currentPairId);
+            const isEndpoint = (pairData.s.x === cell.x && pairData.s.y === cell.y) || 
+                               (pairData.e.x === cell.x && pairData.e.y === cell.y);
+
+            // Add to path
+            path.push({x: cell.x, y: cell.y});
+            drawGrid();
+            checkWinCondition();
+        }
+    }
+
+    function handleEnd(e) {
+        e.preventDefault();
+        currentPairId = null;
+    }
+
+    canvas.addEventListener('touchstart', handleStart, {passive: false});
+    canvas.addEventListener('touchmove', handleMove, {passive: false});
+    canvas.addEventListener('touchend', handleEnd, {passive: false});
+    
+    // Mouse fallback
+    canvas.addEventListener('mousedown', handleStart);
+    canvas.addEventListener('mousemove', (e) => { if(e.buttons === 1) handleMove(e); });
+    canvas.addEventListener('mouseup', handleEnd);
+
+    function checkWinCondition() {
+        let totalPathCells = 0;
+        let connectedPairs = 0;
+
+        for(let id in paths) {
+            const path = paths[id];
+            if(path.length > 0) {
+                const pair = pairsData.find(p => p.id == id);
+                const first = path[0];
+                const last = path[path.length-1];
+                const reachesStart = (first.x === pair.s.x && first.y === pair.s.y) || (last.x === pair.s.x && last.y === pair.s.y);
+                const reachesEnd = (first.x === pair.e.x && first.y === pair.e.y) || (last.x === pair.e.x && last.y === pair.e.y);
+                
+                if(reachesStart && reachesEnd && path.length > 1) {
+                    connectedPairs++;
+                    totalPathCells += path.length;
+                }
+            }
+        }
+
+        // Win Condition: All pairs connected AND 100% board fill
+        // Note: For user experience, triggering win strictly when all paths connected and grid is full.
+        // Formula: total path cells (minus duplicates at endpoints if logic varies) + obstacles = 49
+        // My logic counts every distinct cell.
+        if(connectedPairs === 5) {
+            const coveredCells = new Set();
+            for(let id in paths) {
+                paths[id].forEach(pos => coveredCells.add(`${pos.x},${pos.y}`));
+            }
+            obstacles.forEach(o => coveredCells.add(`${o.x},${o.y}`));
+            
+            if(coveredCells.size === 49) {
+                setTimeout(() => {
+                    document.getElementById('background').className = 'bg-sharp';
+                    switchState('state2b', 'state3');
+                }, 500);
+            }
+        }
+    }
+
+    // --- Swipe Logic (State 3 -> 4) ---
+    const slider = document.getElementById('swipe-slider');
+    const thumb = document.getElementById('swipe-thumb');
+    let isDragging = false;
+    let startX = 0;
+
+    thumb.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].clientX - thumb.offsetLeft;
+    });
+
+    thumb.addEventListener('touchmove', (e) => {
+        if(!isDragging) return;
+        let x = e.touches[0].clientX - startX;
+        let max = slider.offsetWidth - thumb.offsetWidth - 5;
+        if(x < 5) x = 5;
+        if(x > max) x = max;
+        thumb.style.left = x + 'px';
+
+        if(x >= max - 5) {
+            isDragging = false;
+            triggerFinale();
+        }
+    });
+
+    thumb.addEventListener('touchend', () => {
+        isDragging = false;
+        let max = slider.offsetWidth - thumb.offsetWidth - 5;
+        if(parseInt(thumb.style.left) < max - 5) {
+            thumb.style.left = '5px';
+        }
+    });
+
+    function triggerFinale() {
+        document.getElementById('state3').classList.remove('active');
+        document.getElementById('background').className = 'bg-hn';
+        
+        // Phase 4a: Wait 3 seconds with ONLY the image
+        setTimeout(() => {
+            // Phase 4b: Slide up letter
+            document.getElementById('state4').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('final-letter').classList.add('slide-up');
+            }, 100);
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
