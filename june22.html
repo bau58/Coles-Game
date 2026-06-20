@@ -441,25 +441,32 @@
         /* --- TILE GAME ENGINE --- */
         // Static Layout Configuration (18 Tiles, 9 Pairs)
         // Coords normalized for a responsive grid (c: col, r: row)
+        // Layer 0 = base (12 tiles), Layer 1 = mid (4 tiles, each covers 4 base tiles),
+        // Layer 2 = top (2 tiles, each covers 2 mid tiles)
         const BASE_LAYOUT = [
-            { id: 't0',  layer: 0, c: 3, r: 0, coversIds: [] },
-            { id: 't1',  layer: 0, c: 2, r: 1, coversIds: [] },
-            { id: 't2',  layer: 0, c: 4, r: 1, coversIds: [] },
-            { id: 't3',  layer: 0, c: 1, r: 2, coversIds: [] },
-            { id: 't4',  layer: 0, c: 3, r: 2, coversIds: [] },
-            { id: 't5',  layer: 0, c: 5, r: 2, coversIds: [] },
-            { id: 't6',  layer: 0, c: 0, r: 3, coversIds: [] },
-            { id: 't7',  layer: 0, c: 2, r: 3, coversIds: [] },
-            { id: 't8',  layer: 0, c: 4, r: 3, coversIds: [] },
-            { id: 't9',  layer: 0, c: 6, r: 3, coversIds: [] },
-            { id: 't10', layer: 0, c: 1, r: 4, coversIds: [] },
-            { id: 't11', layer: 0, c: 3, r: 4, coversIds: [] },
-            { id: 't12', layer: 0, c: 5, r: 4, coversIds: [] },
-            { id: 't13', layer: 0, c: 2, r: 5, coversIds: [] },
-            { id: 't14', layer: 0, c: 4, r: 5, coversIds: [] },
-            { id: 't15', layer: 0, c: 3, r: 6, coversIds: [] },
-            { id: 't16', layer: 1, c: 3, r: 3, coversIds: ['t4', 't7', 't8', 't11'] },
-            { id: 't17', layer: 2, c: 3, r: 3, coversIds: ['t16'] }
+            // Layer 0 — base, 12 tiles
+            { id: 't0',  layer: 0, c: 0, r: 0, coversIds: [] },
+            { id: 't1',  layer: 0, c: 2, r: 0, coversIds: [] },
+            { id: 't2',  layer: 0, c: 4, r: 0, coversIds: [] },
+            { id: 't3',  layer: 0, c: 6, r: 0, coversIds: [] },
+            { id: 't4',  layer: 0, c: 0, r: 2, coversIds: [] },
+            { id: 't5',  layer: 0, c: 2, r: 2, coversIds: [] },
+            { id: 't6',  layer: 0, c: 4, r: 2, coversIds: [] },
+            { id: 't7',  layer: 0, c: 6, r: 2, coversIds: [] },
+            { id: 't8',  layer: 0, c: 0, r: 4, coversIds: [] },
+            { id: 't9',  layer: 0, c: 2, r: 4, coversIds: [] },
+            { id: 't10', layer: 0, c: 4, r: 4, coversIds: [] },
+            { id: 't11', layer: 0, c: 6, r: 4, coversIds: [] },
+
+            // Layer 1 — mid, 4 tiles, each centered over a 2x2 block of layer-0 tiles
+            { id: 't12', layer: 1, c: 1, r: 1, coversIds: ['t0','t1','t4','t5'] },
+            { id: 't13', layer: 1, c: 5, r: 1, coversIds: ['t2','t3','t6','t7'] },
+            { id: 't14', layer: 1, c: 1, r: 3, coversIds: ['t4','t5','t8','t9'] },
+            { id: 't15', layer: 1, c: 5, r: 3, coversIds: ['t6','t7','t10','t11'] },
+
+            // Layer 2 — top, 2 tiles, each centered over a pair of layer-1 tiles
+            { id: 't16', layer: 2, c: 3, r: 1, coversIds: ['t12','t13'] },
+            { id: 't17', layer: 2, c: 3, r: 3, coversIds: ['t14','t15'] }
         ];
 
         const ICON_SET = ['🌲', '🦌', '🍄', '🥭', '🌰', '🍒'];
@@ -485,12 +492,12 @@
             const fillOrder = [];
 
             while(remaining.size > 0) {
-                const removable = [...remaining].filter(id => 
+                const removable = [...remaining].filter(id =>
                     coveredByMap[id].every(coveringId => !remaining.has(coveringId))
                 );
-                
-                if (removable.length === 0) break; // Should not happen with static layout
-                
+
+                if (removable.length === 0) break; // Should not happen with a valid layout
+
                 const pick = removable[Math.floor(Math.random() * removable.length)];
                 fillOrder.push(pick);
                 remaining.delete(pick);
@@ -529,7 +536,7 @@
                 if (!el) return;
 
                 const tappable = isTileTappable(tile);
-                
+
                 el.className = 'tile'; // reset
                 if (tile.isRemoved) {
                     el.classList.add('removed');
@@ -543,7 +550,7 @@
                     el.classList.add('selected');
                 }
 
-                // Interaction state driven purely by JS logic layer
+                // Interaction state driven purely by JS logic layer, not visual stacking
                 el.style.pointerEvents = (tile.isRemoved || !tappable) ? "none" : "auto";
             });
 
@@ -603,7 +610,7 @@
             });
             selectedTileId = null;
             renderBoard();
-        }
+        } 
 
         function initGame() {
             gameData = generateSolvableBoard();
@@ -616,9 +623,8 @@
                 el.innerText = tile.icon;
                 
                 // Position logic based on grid coordinates
-                // Using 12.4% based on a 7-column grid (col 0-6)
                 el.style.left = `calc(${tile.c} * 12.4% + 5%)`;
-                el.style.top = `calc(${tile.r} * 12.4% + 5%)`;
+                el.style.top = `calc(${tile.r} * 12.4% + 15%)`;
                 // Layer Z-Index structural offset (-4px Y per layer)
                 el.style.zIndex = tile.layer;
                 el.style.transform = `translateY(-${tile.layer * 4}px)`;
@@ -695,7 +701,5 @@
             }
         }
     </script>
-</body>
-</html>
 </body>
 </html>
