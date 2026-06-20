@@ -28,8 +28,8 @@
             color: #ffffff;
         }
 
-        /* Dynamic Background Layer */
-        #bg-layer {
+        /* Dedicated Background Layers for Seamless Crossfading */
+        .bg-layer {
             position: absolute;
             top: 0;
             left: 0;
@@ -38,9 +38,26 @@
             height: 100dvh;
             background-size: cover;
             background-position: center;
-            background-image: url('june22.forrest.original.jpg');
-            transition: background-image 1s ease-in-out;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
             z-index: 1;
+        }
+
+        #bg-phase1 {
+            background-image: url('june22.forrest.original.jpg');
+            opacity: 1; /* Default starting background */
+        }
+
+        #bg-phase2 {
+            background-image: url('june22.forrest.blurred .png');
+        }
+
+        #bg-phase3 {
+            background-image: url('june22.forrest.path.jpg');
+        }
+
+        #bg-phase4 {
+            background-image: url('june22hn.jpg');
         }
 
         /* Canvas Overlay for FX */
@@ -130,7 +147,7 @@
 
         /* Standard Overlay Cards */
         .glass-card {
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -248,7 +265,6 @@
             transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
         }
 
-        /* State Classes derived entirely from JS Logic */
         .tile.locked {
             opacity: 0.4;
         }
@@ -270,13 +286,17 @@
         }
 
         /* Phase 4 Letter Styling */
+        #phase-4 {
+            justify-content: flex-end; /* Force card to the very bottom */
+            padding-bottom: 30px; 
+        }
+
         #letter-card {
-            position: absolute;
-            bottom: 25px;
             text-align: left;
             padding: 25px;
             background: rgba(20, 30, 20, 0.85);
             border-left: 4px solid rgba(213, 229, 213, 0.95);
+            margin: 0 auto;
         }
 
         #letter-card p {
@@ -302,12 +322,16 @@
 </head>
 <body>
 
-    <div id="bg-layer"></div>
+    <div id="bg-phase1" class="bg-layer"></div>
+    <div id="bg-phase2" class="bg-layer"></div>
+    <div id="bg-phase3" class="bg-layer"></div>
+    <div id="bg-phase4" class="bg-layer"></div>
+
     <canvas id="fx-canvas"></canvas>
 
     <nav id="header">
         <a href="index.html" id="header-home">&lt; Home</a>
-        <div id="header-title">Héctor + Nicole <span>∞</span></div>
+        <div id="header-title">Héctor + Nicole <span style="font-family: Arial, sans-serif;">∞</span></div>
         <div id="header-clocks">
             <div id="clock-mx">My time: --:-- CDMX</div>
             <div id="clock-eu">Your time: --:-- Europe</div>
@@ -370,12 +394,14 @@
         updateClocks();
 
         /* --- PHASE TRANSITIONS --- */
-        const bgLayer = document.getElementById('bg-layer');
-
         function startPhase2() {
             document.getElementById('phase-1').classList.remove('active');
             document.getElementById('phase-2').classList.add('active');
-            bgLayer.style.backgroundImage = "url('june22.forrest.blurred.png')";
+            
+            // Crossfade backgrounds
+            document.getElementById('bg-phase1').style.opacity = '0';
+            document.getElementById('bg-phase2').style.opacity = '1';
+            
             initGame();
         }
 
@@ -386,7 +412,10 @@
             setTimeout(() => {
                 document.getElementById('phase-2').classList.remove('active');
                 document.getElementById('phase-3').classList.add('active');
-                bgLayer.style.backgroundImage = "url('june22.forrest.path.jpg')";
+                
+                // Crossfade backgrounds
+                document.getElementById('bg-phase2').style.opacity = '0';
+                document.getElementById('bg-phase3').style.opacity = '1';
             }, 1200);
         }
 
@@ -402,7 +431,10 @@
             if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
             document.getElementById('phase-3').classList.remove('active');
             document.getElementById('phase-4').classList.add('active');
-            bgLayer.style.backgroundImage = "url('june22hn.jpg')";
+            
+            // Crossfade backgrounds
+            document.getElementById('bg-phase3').style.opacity = '0';
+            document.getElementById('bg-phase4').style.opacity = '1';
         }
 
 
@@ -489,7 +521,6 @@
         }
 
         function renderBoard() {
-            const container = document.getElementById('board-container');
             const remainingCount = gameData.filter(t => !t.isRemoved).length;
             document.getElementById('tiles-remaining').innerText = `${remainingCount} tiles remaining`;
 
@@ -512,7 +543,7 @@
                     el.classList.add('selected');
                 }
 
-                // Interaction state driven purely by JS layer
+                // Interaction state driven purely by JS logic layer
                 el.style.pointerEvents = (tile.isRemoved || !tappable) ? "none" : "auto";
             });
 
@@ -585,7 +616,7 @@
                 el.innerText = tile.icon;
                 
                 // Position logic based on grid coordinates
-                // Using 14.28% based on a 7-column grid (col 0-6)
+                // Using 12.4% based on a 7-column grid (col 0-6)
                 el.style.left = `calc(${tile.c} * 12.4% + 5%)`;
                 el.style.top = `calc(${tile.r} * 12.4% + 5%)`;
                 // Layer Z-Index structural offset (-4px Y per layer)
@@ -664,5 +695,7 @@
             }
         }
     </script>
+</body>
+</html>
 </body>
 </html>
