@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>June 22</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@300;400;500&family=Satisfy&display=swap');
+
+        /* Global Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+            background-color: #0d1a10;
+            touch-action: none;
+            font-family: 'Roboto', sans-serif;
+            color: #ffffff;
+        }
+
+        /* Dynamic Background Layer */
+        #bg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            background-size: cover;
+            background-position: center;
+            background-image: url('june22.forrest.original.jpg');
+            transition: background-image 1s ease-in-out;
+            z-index: 1;
+        }
+
+        /* Canvas Overlay for FX */
+        #fx-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        /* Global Header */
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 60px;
+            background: rgba(213, 229, 213, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 1000;
+            color: #1e3a24;
+        }
+
+        #header-home {
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            color: #1e3a24;
+            flex: 1;
+        }
+
+        #header-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 1.8rem;
+            letter-spacing: 1px;
+            flex: 2;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        #header-title span {
+            font-family: Arial, sans-serif; /* Fallback for perfect infinity symbol */
+        }
+
+        #header-clocks {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-size: 0.75rem;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        /* Phase Containers */
+        .phase {
+            position: absolute;
+            top: 60px; /* Below header */
+            left: 0;
+            width: 100vw;
+            height: calc(100dvh - 60px);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.6s ease-in-out;
+            padding: 20px;
+        }
+
+        .phase.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Standard Overlay Cards */
+        .glass-card {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px 25px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .glass-card h1 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .glass-card p {
+            font-size: 1.1rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        /* Action Buttons */
+        .btn {
+            background: #ffffff;
+            color: #1e3a24;
+            border: none;
+            padding: 14px 32px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border-radius: 30px;
+            cursor: pointer;
+            font-family: 'Roboto', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            transition: transform 0.1s, background 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            background: #e0e0e0;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+
+        /* Game Board (Phase 2) */
+        #game-ui {
+            width: 100%;
+            max-width: 500px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #progress-bar-container {
+            width: 100%;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        #tiles-remaining {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        #instruction-banner {
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(5px);
+            padding: 12px 20px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #board-container {
+            position: relative;
+            width: 90vw;
+            height: 90vw;
+            max-width: 400px;
+            max-height: 400px;
+            margin: auto 0;
+        }
+
+        .tile {
+            position: absolute;
+            width: 13%;
+            height: 13%;
+            background: linear-gradient(135deg, #a67b5b, #6b4423);
+            border: 1px solid #4a2e15;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            box-shadow: 2px 4px 6px rgba(0,0,0,0.4);
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s, opacity 0.3s;
+        }
+
+        /* State Classes derived entirely from JS Logic */
+        .tile.locked {
+            opacity: 0.4;
+        }
+
+        .tile.tappable {
+            opacity: 1;
+        }
+
+        .tile.selected {
+            box-shadow: 0 0 0 3px #ffd700, 0 6px 15px rgba(0,0,0,0.6);
+            transform: translateY(-4px) scale(1.05);
+            z-index: 100 !important;
+        }
+
+        .tile.removed {
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.5);
+        }
+
+        /* Phase 4 Letter Styling */
+        #letter-card {
+            position: absolute;
+            bottom: 25px;
+            text-align: left;
+            padding: 25px;
+            background: rgba(20, 30, 20, 0.85);
+            border-left: 4px solid rgba(213, 229, 213, 0.95);
+        }
+
+        #letter-card p {
+            margin-bottom: 15px;
+            font-size: 1.05rem;
+        }
+
+        #letter-card p:last-child {
+            margin-bottom: 0;
+            font-family: 'Satisfy', cursive;
+            font-size: 1.5rem;
+            color: rgba(213, 229, 213, 0.95);
+        }
+
+        /* Animations */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .shake-err { animation: shake 0.4s ease-in-out; }
+    </style>
+</head>
+<body>
+
+    <div id="bg-layer"></div>
+    <canvas id="fx-canvas"></canvas>
+
+    <nav id="header">
+        <a href="index.html" id="header-home">&lt; Home</a>
+        <div id="header-title">Héctor + Nicole <span>∞</span></div>
+        <div id="header-clocks">
+            <div id="clock-mx">My time: --:-- CDMX</div>
+            <div id="clock-eu">Your time: --:-- Europe</div>
+        </div>
+    </nav>
+
+    <div id="phase-1" class="phase active">
+        <div class="glass-card">
+            <h1>THE TRAIL IS BLOCKED</h1>
+            <p>Oh no, Cole! The Black Forrest is too dense and it blocks a very important question. Play to clear the path.</p>
+            <button class="btn" onclick="startPhase2()">PLAY</button>
+        </div>
+    </div>
+
+    <div id="phase-2" class="phase">
+        <div id="game-ui">
+            <div id="progress-bar-container">
+                <div id="tiles-remaining">18 tiles remaining</div>
+                <button id="btn-shuffle" style="display:none; background:none; border:none; color:gold; cursor:pointer;" onclick="triggerSafetyShuffle()">🔀 Shuffle</button>
+            </div>
+            
+            <div id="board-container"></div>
+            
+            <div id="instruction-banner">
+                Tap pairs of matching tiles to clear the path. Tiles are locked if another tile is resting on top of them.
+            </div>
+        </div>
+    </div>
+
+    <div id="phase-3" class="phase">
+        <div class="glass-card">
+            <h1>Hey, Sweet Cole,</h1>
+            <p>I was wondering if you would make me the happiest person in the world and be my girlfriend?</p>
+            <div class="btn-group">
+                <button class="btn" onclick="startPhase4()">Ja</button>
+                <button class="btn" id="btn-no" onclick="handleNo()">Nien</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="phase-4" class="phase">
+        <div class="glass-card" id="letter-card">
+            <p>The Black Forest inspired countless fairy tales, but none of them compare to ours.</p>
+            <p>I never believed in fate, love at first sight, or soulmates. Then I met you. Now I believe in happily ever after.</p>
+            <p>Have a wonderful day. Learn, enjoy, connect, take pics, build memories.</p>
+            <p>Te veo pronto, amor. Besos.</p>
+        </div>
+    </div>
+
+    <script>
+        /* --- CLOCK ENGINE --- */
+        function updateClocks() {
+            const now = new Date();
+            const mxOpt = { timeZone: 'America/Mexico_City', hour: '2-digit', minute: '2-digit', hour12: false };
+            const euOpt = { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit', hour12: false };
+            document.getElementById('clock-mx').innerText = `My time: ${now.toLocaleTimeString('en-GB', mxOpt)} CDMX`;
+            document.getElementById('clock-eu').innerText = `Your time: ${now.toLocaleTimeString('en-GB', euOpt)} Europe`;
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+
+        /* --- PHASE TRANSITIONS --- */
+        const bgLayer = document.getElementById('bg-layer');
+
+        function startPhase2() {
+            document.getElementById('phase-1').classList.remove('active');
+            document.getElementById('phase-2').classList.add('active');
+            bgLayer.style.backgroundImage = "url('june22.forrest.blurred.png')";
+            initGame();
+        }
+
+        function triggerWinSequence() {
+            fireLeafDispersal();
+            if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
+            
+            setTimeout(() => {
+                document.getElementById('phase-2').classList.remove('active');
+                document.getElementById('phase-3').classList.add('active');
+                bgLayer.style.backgroundImage = "url('june22.forrest.path.jpg')";
+            }, 1200);
+        }
+
+        function handleNo() {
+            const btnNo = document.getElementById('btn-no');
+            if(navigator.vibrate) navigator.vibrate(50);
+            btnNo.classList.remove('shake-err');
+            void btnNo.offsetWidth; // trigger reflow
+            btnNo.classList.add('shake-err');
+        }
+
+        function startPhase4() {
+            if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
+            document.getElementById('phase-3').classList.remove('active');
+            document.getElementById('phase-4').classList.add('active');
+            bgLayer.style.backgroundImage = "url('june22hn.jpg')";
+        }
+
+
+        /* --- TILE GAME ENGINE --- */
+        // Static Layout Configuration (18 Tiles, 9 Pairs)
+        // Coords normalized for a responsive grid (c: col, r: row)
+        const BASE_LAYOUT = [
+            { id: 't0',  layer: 0, c: 3, r: 0, coversIds: [] },
+            { id: 't1',  layer: 0, c: 2, r: 1, coversIds: [] },
+            { id: 't2',  layer: 0, c: 4, r: 1, coversIds: [] },
+            { id: 't3',  layer: 0, c: 1, r: 2, coversIds: [] },
+            { id: 't4',  layer: 0, c: 3, r: 2, coversIds: [] },
+            { id: 't5',  layer: 0, c: 5, r: 2, coversIds: [] },
+            { id: 't6',  layer: 0, c: 0, r: 3, coversIds: [] },
+            { id: 't7',  layer: 0, c: 2, r: 3, coversIds: [] },
+            { id: 't8',  layer: 0, c: 4, r: 3, coversIds: [] },
+            { id: 't9',  layer: 0, c: 6, r: 3, coversIds: [] },
+            { id: 't10', layer: 0, c: 1, r: 4, coversIds: [] },
+            { id: 't11', layer: 0, c: 3, r: 4, coversIds: [] },
+            { id: 't12', layer: 0, c: 5, r: 4, coversIds: [] },
+            { id: 't13', layer: 0, c: 2, r: 5, coversIds: [] },
+            { id: 't14', layer: 0, c: 4, r: 5, coversIds: [] },
+            { id: 't15', layer: 0, c: 3, r: 6, coversIds: [] },
+            { id: 't16', layer: 1, c: 3, r: 3, coversIds: ['t4', 't7', 't8', 't11'] },
+            { id: 't17', layer: 2, c: 3, r: 3, coversIds: ['t16'] }
+        ];
+
+        const ICON_SET = ['🌲', '🦌', '🍄', '🥭', '🌰', '🍒'];
+        let gameData = [];
+        let selectedTileId = null;
+
+        // Build coveredByMap inverted from coversIds
+        function buildCoveredByMap() {
+            const map = {};
+            BASE_LAYOUT.forEach(t => map[t.id] = []);
+            BASE_LAYOUT.forEach(t => {
+                t.coversIds.forEach(covered => {
+                    if(map[covered]) map[covered].push(t.id);
+                });
+            });
+            return map;
+        }
+
+        // Backward-build to guarantee solvability
+        function generateSolvableBoard() {
+            const coveredByMap = buildCoveredByMap();
+            const remaining = new Set(BASE_LAYOUT.map(t => t.id));
+            const fillOrder = [];
+
+            while(remaining.size > 0) {
+                const removable = [...remaining].filter(id => 
+                    coveredByMap[id].every(coveringId => !remaining.has(coveringId))
+                );
+                
+                if (removable.length === 0) break; // Should not happen with static layout
+                
+                const pick = removable[Math.floor(Math.random() * removable.length)];
+                fillOrder.push(pick);
+                remaining.delete(pick);
+            }
+
+            const assignments = {};
+            const reversed = [...fillOrder].reverse();
+            for (let i = 0; i < reversed.length; i += 2) {
+                const icon = ICON_SET[(i / 2) % ICON_SET.length];
+                assignments[reversed[i]] = icon;
+                assignments[reversed[i + 1]] = icon;
+            }
+
+            return BASE_LAYOUT.map(pos => ({
+                id: pos.id,
+                layer: pos.layer,
+                c: pos.c,
+                r: pos.r,
+                icon: assignments[pos.id],
+                isRemoved: false,
+                coveredBy: coveredByMap[pos.id]
+            }));
+        }
+
+        function isTileTappable(tile) {
+            if (tile.isRemoved) return false;
+            return tile.coveredBy.every(id => gameData.find(t => t.id === id).isRemoved);
+        }
+
+        function renderBoard() {
+            const container = document.getElementById('board-container');
+            const remainingCount = gameData.filter(t => !t.isRemoved).length;
+            document.getElementById('tiles-remaining').innerText = `${remainingCount} tiles remaining`;
+
+            gameData.forEach(tile => {
+                const el = document.getElementById(tile.id);
+                if (!el) return;
+
+                const tappable = isTileTappable(tile);
+                
+                el.className = 'tile'; // reset
+                if (tile.isRemoved) {
+                    el.classList.add('removed');
+                } else if (!tappable) {
+                    el.classList.add('locked');
+                } else {
+                    el.classList.add('tappable');
+                }
+
+                if (selectedTileId === tile.id) {
+                    el.classList.add('selected');
+                }
+
+                // Interaction state driven purely by JS layer
+                el.style.pointerEvents = (tile.isRemoved || !tappable) ? "none" : "auto";
+            });
+
+            // Check Win State
+            if (remainingCount === 0) {
+                triggerWinSequence();
+            } else {
+                checkSafetyNet();
+            }
+        }
+
+        function handleTileClick(id) {
+            const tile = gameData.find(t => t.id === id);
+            if(!isTileTappable(tile)) return;
+
+            if (selectedTileId === id) {
+                selectedTileId = null; // deselect
+            } else if (selectedTileId) {
+                const prevTile = gameData.find(t => t.id === selectedTileId);
+                if (prevTile.icon === tile.icon) {
+                    // Match found
+                    prevTile.isRemoved = true;
+                    tile.isRemoved = true;
+                    selectedTileId = null;
+                    if(navigator.vibrate) navigator.vibrate(30);
+                } else {
+                    // No match, swap selection
+                    selectedTileId = id;
+                }
+            } else {
+                selectedTileId = id;
+            }
+            renderBoard();
+        }
+
+        function checkSafetyNet() {
+            const tappableTiles = gameData.filter(t => !t.isRemoved && isTileTappable(t));
+            let hasMatch = false;
+            for(let i=0; i<tappableTiles.length; i++){
+                for(let j=i+1; j<tappableTiles.length; j++){
+                    if(tappableTiles[i].icon === tappableTiles[j].icon) hasMatch = true;
+                }
+            }
+            document.getElementById('btn-shuffle').style.display = (!hasMatch && tappableTiles.length > 0) ? "inline-block" : "none";
+        }
+
+        function triggerSafetyShuffle() {
+            const remaining = gameData.filter(t => !t.isRemoved);
+            const icons = remaining.map(t => t.icon);
+            for (let i = icons.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [icons[i], icons[j]] = [icons[j], icons[i]];
+            }
+            remaining.forEach((t, idx) => {
+                t.icon = icons[idx];
+                document.getElementById(t.id).innerText = t.icon;
+            });
+            selectedTileId = null;
+            renderBoard();
+        }
+
+        function initGame() {
+            gameData = generateSolvableBoard();
+            const container = document.getElementById('board-container');
+            container.innerHTML = '';
+            
+            gameData.forEach(tile => {
+                const el = document.createElement('div');
+                el.id = tile.id;
+                el.innerText = tile.icon;
+                
+                // Position logic based on grid coordinates
+                // Using 14.28% based on a 7-column grid (col 0-6)
+                el.style.left = `calc(${tile.c} * 12.4% + 5%)`;
+                el.style.top = `calc(${tile.r} * 12.4% + 5%)`;
+                // Layer Z-Index structural offset (-4px Y per layer)
+                el.style.zIndex = tile.layer;
+                el.style.transform = `translateY(-${tile.layer * 4}px)`;
+
+                el.onclick = () => handleTileClick(tile.id);
+                container.appendChild(el);
+            });
+            
+            renderBoard();
+        }
+
+        /* --- FX ENGINE (LEAF DISPERSAL) --- */
+        const canvas = document.getElementById('fx-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animFrame;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function fireLeafDispersal() {
+            const colors = ['#2e5c38', '#3b7a48', '#4c965b', '#6b4423'];
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+            
+            for(let i=0; i<60; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 5 + Math.random() * 10;
+                particles.push({
+                    x: cx, y: cy,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 8 + Math.random() * 12,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 1.0,
+                    decay: 0.015 + Math.random() * 0.02,
+                    rotation: Math.random() * 360,
+                    rs: (Math.random() - 0.5) * 10
+                });
+            }
+            loopFX();
+        }
+
+        function loopFX() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            let active = false;
+            
+            particles.forEach(p => {
+                if (p.life <= 0) return;
+                active = true;
+                p.x += p.vx;
+                p.y += p.vy;
+                p.rotation += p.rs;
+                p.life -= p.decay;
+                
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.globalAlpha = Math.max(0, p.life);
+                ctx.fillStyle = p.color;
+                ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size);
+                ctx.restore();
+            });
+
+            if(active) {
+                animFrame = requestAnimationFrame(loopFX);
+            } else {
+                cancelAnimationFrame(animFrame);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+    </script>
+</body>
+</html>
