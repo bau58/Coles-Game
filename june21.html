@@ -37,7 +37,7 @@
             overflow: hidden;
         }
 
-        /* Background Layering with robust CSS Fallbacks */
+        /* Background Layering */
         #background {
             position: absolute;
             top: 0;
@@ -50,26 +50,9 @@
             transition: all 1.5s ease-in-out;
         }
 
-        /* Fallbacks in case local images are missing */
-        .bg-sharp { 
-            background-image: url('June21.backgorund.original.jpg');
-            background-color: #2c3e50;
-            background-image: linear-gradient(135deg, #1e3a24, #2c3e50), url('June21.backgorund.original.jpg');
-            background-blend-mode: overlay;
-        }
-        .bg-blurred { 
-            background-image: url('June21.backgorund.blurred.jpg');
-            background-color: #1e3a24;
-            background-image: linear-gradient(135deg, rgba(30,58,36,0.8), rgba(44,62,80,0.8)), url('June21.backgorund.blurred.jpg');
-            background-blend-mode: overlay;
-            filter: blur(8px);
-        }
-        .bg-hn { 
-            background-image: url('June21.HN.jpg');
-            background-color: #e74c3c;
-            background-image: linear-gradient(135deg, rgba(231,76,60,0.8), rgba(192,57,43,0.8)), url('June21.HN.jpg');
-            background-blend-mode: overlay;
-        }
+        .bg-sharp { background-image: url('June21.backgorund.original.jpg'); }
+        .bg-blurred { background-image: url('June21.backgorund.blurred.jpg'); filter: blur(8px); }
+        .bg-hn { background-image: url('June21.HN.jpg'); }
 
         /* Global Header */
         #header {
@@ -461,7 +444,329 @@
 
         ctx.fillStyle = '#2c3e50';
         
-        // Custom rounded rect drawing for universal support
         function fillRoundRect(x, y, w, h, r) {
             ctx.beginPath();
-            ctx.moveTo(x +
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.fill();
+        }
+
+        fillRoundRect(-w - gap/2, -h/2, w, h, 6);
+        fillRoundRect(gap/2, -h/2, w, h, 6);     
+        
+        ctx.fillRect(-gap/2 - 1, -size*0.1, gap + 2, size*0.2);
+        
+        ctx.shadowColor = 'transparent';
+        ctx.fillStyle = '#61d4f8';
+        ctx.beginPath(); ctx.arc(-w/2 - gap/2, h/2 - w/3, w/3.5, 0, Math.PI*2); ctx.fill();
+        ctx.beginPath(); ctx.arc(w/2 + gap/2, h/2 - w/3, w/3.5, 0, Math.PI*2); ctx.fill();
+
+        ctx.restore();
+    }
+
+    function drawStork(ctx, x, y, size) {
+        ctx.save();
+        ctx.translate(x, y);
+        
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+        ctx.shadowBlur = 4;
+        ctx.shadowOffsetY = 2;
+
+        ctx.strokeStyle = '#e74c3c'; 
+        ctx.lineWidth = size * 0.06;
+        ctx.beginPath(); ctx.moveTo(-size*0.08, size*0.1); ctx.lineTo(-size*0.12, size*0.4); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(size*0.08, size*0.1); ctx.lineTo(size*0.04, size*0.4); ctx.stroke();
+
+        ctx.fillStyle = '#ecf0f1';
+        ctx.beginPath();
+        ctx.scale(1.5, 1);
+        ctx.arc(0, 0, size*0.18, 0, Math.PI*2);
+        ctx.fill();
+        ctx.scale(1/1.5, 1);
+
+        ctx.beginPath();
+        ctx.moveTo(size*0.15, -size*0.05);
+        ctx.quadraticCurveTo(size*0.25, -size*0.3, size*0.15, -size*0.35);
+        ctx.arc(size*0.15, -size*0.35, size*0.12, 0, Math.PI*2);
+        ctx.fill();
+
+        ctx.fillStyle = '#f39c12';
+        ctx.beginPath();
+        ctx.moveTo(size*0.25, -size*0.35);
+        ctx.lineTo(size*0.55, -size*0.3);
+        ctx.lineTo(size*0.25, -size*0.25);
+        ctx.fill();
+
+        ctx.restore();
+    }
+
+    // --- Optimized Level Data ---
+    const obstacles = [
+        {x: 1, y: 1, icon: '⛪'}, 
+        {x: 5, y: 1, icon: '🏠'}, 
+        {x: 2, y: 3, icon: '🗼'}
+    ];
+
+    const pairsData = [
+        { id: 1, color: '#e74c3c', icon1: '🍷', icon2: '🧀', s: {x:0, y:1}, e: {x:0, y:2} },
+        { id: 2, color: '#f39c12', icon1: '☕', icon2: '🥐', s: {x:5, y:0}, e: {x:5, y:5} },
+        { id: 3, color: '#2ecc71', icon1: 'CUSTOM_BINOCS', icon2: 'CUSTOM_STORK', s: {x:2, y:1}, e: {x:3, y:4} },
+        { id: 4, color: '#9b59b6', icon1: '💐', icon2: '💌', s: {x:2, y:2}, e: {x:2, y:4} },
+        { id: 5, color: '#3498db', icon1: '😏', icon2: '🛏️', s: {x:6, y:3}, e: {x:0, y:6} }
+    ];
+
+    let paths = { 1:[], 2:[], 3:[], 4:[], 5:[] };
+    let currentPairId = null;
+
+    function initGame() {
+        resizeCanvas();
+        paths = { 1:[], 2:[], 3:[], 4:[], 5:[] };
+        drawGrid();
+    }
+
+    function drawGrid() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 1;
+        for(let i=0; i<=GRID_SIZE; i++) {
+            ctx.beginPath(); ctx.moveTo(i * CELL_SIZE, 0); ctx.lineTo(i * CELL_SIZE, canvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, i * CELL_SIZE); ctx.lineTo(canvas.width, i * CELL_SIZE); ctx.stroke();
+        }
+
+        for(let id in paths) {
+            const path = paths[id];
+            if(path.length > 0) {
+                const pair = pairsData.find(p => p.id == id);
+                ctx.strokeStyle = pair.color;
+                ctx.lineWidth = CELL_SIZE * 0.4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                ctx.beginPath();
+                ctx.moveTo(path[0].x * CELL_SIZE + CELL_SIZE/2, path[0].y * CELL_SIZE + CELL_SIZE/2);
+                for(let i=1; i<path.length; i++) {
+                    ctx.lineTo(path[i].x * CELL_SIZE + CELL_SIZE/2, path[i].y * CELL_SIZE + CELL_SIZE/2);
+                }
+                ctx.stroke();
+            }
+        }
+
+        ctx.font = `${CELL_SIZE*0.65}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 3;
+
+        obstacles.forEach(o => {
+            ctx.fillText(o.icon, o.x * CELL_SIZE + CELL_SIZE/2, o.y * CELL_SIZE + CELL_SIZE/2);
+        });
+
+        pairsData.forEach(p => {
+            const renderIcon = (iconStr, x, y) => {
+                const px = x * CELL_SIZE + CELL_SIZE/2;
+                const py = y * CELL_SIZE + CELL_SIZE/2;
+                if(iconStr === 'CUSTOM_BINOCS') {
+                    drawBinoculars(ctx, px, py, CELL_SIZE * 0.7);
+                } else if (iconStr === 'CUSTOM_STORK') {
+                    drawStork(ctx, px, py, CELL_SIZE * 0.7);
+                } else {
+                    ctx.fillText(iconStr, px, py);
+                }
+            };
+            renderIcon(p.icon1, p.s.x, p.s.y);
+            renderIcon(p.icon2, p.e.x, p.e.y);
+        });
+        
+        ctx.shadowColor = 'transparent';
+    }
+
+    function getCell(e) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const x = Math.floor((clientX - rect.left) / CELL_SIZE);
+        const y = Math.floor((clientY - rect.top) / CELL_SIZE);
+        if(x>=0 && x<GRID_SIZE && y>=0 && y<GRID_SIZE) return {x, y};
+        return null;
+    }
+
+    function isObstacle(x, y) {
+        return obstacles.some(o => o.x === x && o.y === y);
+    }
+
+    function getPairAt(x, y) {
+        for(let p of pairsData) {
+            if((p.s.x === x && p.s.y === y) || (p.e.x === x && p.e.y === y)) return p.id;
+        }
+        return null;
+    }
+
+    function getPathAt(x, y) {
+        for(let id in paths) {
+            const idx = paths[id].findIndex(pos => pos.x === x && pos.y === y);
+            if(idx !== -1) return {id: parseInt(id), index: idx};
+        }
+        return null;
+    }
+
+    function vibrate() {
+        if(navigator.vibrate) navigator.vibrate(50);
+    }
+
+    function handleStart(e) {
+        e.preventDefault();
+        const cell = getCell(e);
+        if(!cell) return;
+
+        const pairId = getPairAt(cell.x, cell.y);
+        if(pairId) {
+            currentPairId = pairId;
+            paths[pairId] = [{x: cell.x, y: cell.y}];
+            drawGrid();
+        } else {
+            const existingPath = getPathAt(cell.x, cell.y);
+            if(existingPath) {
+                currentPairId = existingPath.id;
+                paths[currentPairId] = paths[currentPairId].slice(0, existingPath.index + 1);
+                drawGrid();
+            }
+        }
+    }
+
+    function handleMove(e) {
+        e.preventDefault();
+        if(!currentPairId) return;
+        const cell = getCell(e);
+        if(!cell) return;
+
+        const path = paths[currentPairId];
+        const lastPos = path[path.length - 1];
+
+        if(lastPos.x === cell.x && lastPos.y === cell.y) return;
+
+        const dx = Math.abs(lastPos.x - cell.x);
+        const dy = Math.abs(lastPos.y - cell.y);
+        if((dx === 1 && dy === 0) || (dx === 0 && dy === 1)) {
+            
+            if(path.length > 1 && path[path.length-2].x === cell.x && path[path.length-2].y === cell.y) {
+                path.pop();
+                drawGrid();
+                return;
+            }
+
+            if(isObstacle(cell.x, cell.y)) { vibrate(); return; }
+            
+            const existingPathInfo = getPathAt(cell.x, cell.y);
+            if(existingPathInfo && existingPathInfo.id !== currentPairId) { vibrate(); return; } 
+
+            const targetPairId = getPairAt(cell.x, cell.y);
+            if(targetPairId && targetPairId !== currentPairId) { vibrate(); return; } 
+
+            path.push({x: cell.x, y: cell.y});
+            drawGrid();
+            checkWinCondition();
+        }
+    }
+
+    function handleEnd(e) {
+        e.preventDefault();
+        currentPairId = null;
+    }
+
+    canvas.addEventListener('touchstart', handleStart, {passive: false});
+    canvas.addEventListener('touchmove', handleMove, {passive: false});
+    canvas.addEventListener('touchend', handleEnd, {passive: false});
+    
+    canvas.addEventListener('mousedown', handleStart);
+    canvas.addEventListener('mousemove', (e) => { if(e.buttons === 1) handleMove(e); });
+    canvas.addEventListener('mouseup', handleEnd);
+
+    function checkWinCondition() {
+        let connectedPairs = 0;
+
+        for(let id in paths) {
+            const path = paths[id];
+            if(path.length > 0) {
+                const pair = pairsData.find(p => p.id == id);
+                const first = path[0];
+                const last = path[path.length-1];
+                const reachesStart = (first.x === pair.s.x && first.y === pair.s.y) || (last.x === pair.s.x && last.y === pair.s.y);
+                const reachesEnd = (first.x === pair.e.x && first.y === pair.e.y) || (last.x === pair.e.x && last.y === pair.e.y);
+                
+                if(reachesStart && reachesEnd && path.length > 1) {
+                    connectedPairs++;
+                }
+            }
+        }
+
+        if(connectedPairs === 5) {
+            const coveredCells = new Set();
+            for(let id in paths) {
+                paths[id].forEach(pos => coveredCells.add(`${pos.x},${pos.y}`));
+            }
+            obstacles.forEach(o => coveredCells.add(`${o.x},${o.y}`));
+            
+            if(coveredCells.size === 49) {
+                setTimeout(() => {
+                    document.getElementById('background').className = 'bg-sharp';
+                    switchState('state2b', 'state3');
+                }, 500);
+            }
+        }
+    }
+
+    // --- Swipe Logic ---
+    const slider = document.getElementById('swipe-slider');
+    const thumb = document.getElementById('swipe-thumb');
+    let isDragging = false;
+    let startX = 0;
+
+    thumb.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].clientX - thumb.offsetLeft;
+    });
+
+    thumb.addEventListener('touchmove', (e) => {
+        if(!isDragging) return;
+        let x = e.touches[0].clientX - startX;
+        let max = slider.offsetWidth - thumb.offsetWidth - 5;
+        if(x < 5) x = 5;
+        if(x > max) x = max;
+        thumb.style.left = x + 'px';
+
+        if(x >= max - 5) {
+            isDragging = false;
+            triggerFinale();
+        }
+    });
+
+    thumb.addEventListener('touchend', () => {
+        isDragging = false;
+        let max = slider.offsetWidth - thumb.offsetWidth - 5;
+        if(parseInt(thumb.style.left) < max - 5) {
+            thumb.style.left = '5px';
+        }
+    });
+
+    function triggerFinale() {
+        document.getElementById('state3').classList.remove('active');
+        document.getElementById('background').className = 'bg-hn';
+        
+        setTimeout(() => {
+            document.getElementById('state4').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('final-letter').classList.add('slide-up');
+            }, 100);
+        }, 3000);
+    }
+</script>
+</body>
+</html>
