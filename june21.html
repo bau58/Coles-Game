@@ -1,6 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+<!DOCTYPE html><html lang="en"><head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Day 6 - Strasbourg</title>
@@ -301,11 +299,7 @@
             border: 1px solid rgba(213, 229, 213, 0.5);
             font-size: 20px;
         }
-    </style>
-</head>
-<body>
-
-<div id="app-container">
+    </style></head><body><div id="app-container">
     <div id="background" class="bg-sharp"></div>
 
     <div id="header">
@@ -334,7 +328,7 @@
     <div id="state2a" class="screen">
         <div class="overlay-card">
             <div class="overlay-text">
-                Connect the matching icons (guess what icons go together, think date 😉...first hint: wine goes with cheese). Fill every single square on the board to win. Paths cannot cross!
+                Connect the matching icons (guess what pair of icons go together, think of me taking you on a date 😉...first hint: wine goes with cheese). Fill every single square on the board to win. Paths cannot cross!
             </div>
             <button class="btn" onclick="startGame()">START</button>
         </div>
@@ -366,11 +360,7 @@
                 <button class="btn btn-final" onclick="window.location.href='index.html'">BACK HOME</button>
             </div>
         </div>
-    </div>
-
-</div>
-
-<script>
+    </div></div><script>
     // --- Dual Clocks Logic ---
     function updateClocks() {
         const now = new Date();
@@ -401,7 +391,6 @@
     }
 
     function triggerYes() {
-        // Heart Cascade
         const container = document.getElementById('hearts-container');
         for(let i=0; i<30; i++) {
             setTimeout(() => {
@@ -417,9 +406,7 @@
             }, i * 100);
         }
 
-        // Change Background to blurred
         document.getElementById('background').className = 'bg-blurred';
-        
         switchState('state1', 'state2a');
     }
 
@@ -434,7 +421,96 @@
     const GRID_SIZE = 7;
     let CELL_SIZE = 45;
     
-    // Fit canvas dynamically
+    // Pixel Art Engine
+    const art = {
+        cathedral: {
+            data: [
+                "   xx   ",
+                "  xxxx  ",
+                "  xxxx  ",
+                " xxxxxx ",
+                " xxxxxx ",
+                " xxxxxx ",
+                " xx  xx ",
+                " xx  xx "
+            ],
+            colors: { 'x': '#95a5a6' }
+        },
+        timber: {
+            data: [
+                "   RR   ",
+                "  RRRR  ",
+                " RRRRRR ",
+                "RRRRRRRR",
+                " WWWWWW ",
+                " WDWWWW ",
+                " WDWWDW ",
+                " WDWWDW "
+            ],
+            colors: { 'R': '#8d6e63', 'W': '#ecf0f1', 'D': '#5d4037' }
+        },
+        bridge: {
+            data: [
+                " xx  xx ",
+                " xx  xx ",
+                " xxxxxx ",
+                " xxxxxx ",
+                " xx  xx ",
+                " xx  xx ",
+                " xx  xx ",
+                " xx  xx "
+            ],
+            colors: { 'x': '#bdc3c7' }
+        },
+        binoculars: {
+            data: [
+                " xx  xx ",
+                " xx  xx ",
+                " xxxxxx ",
+                "xxx  xxx",
+                "xxx  xxx",
+                "xxx  xxx",
+                "xxx  xxx",
+                "xxx  xxx"
+            ],
+            colors: { 'x': '#2c3e50' }
+        },
+        stork: {
+            data: [
+                "       R",
+                "      R ",
+                "   WWWW ",
+                "  WWWW  ",
+                " WWWW   ",
+                " WW     ",
+                "  R     ",
+                "  R     "
+            ],
+            colors: { 'W': '#ecf0f1', 'R': '#e74c3c' }
+        }
+    };
+
+    function drawPixelArt(ctx, x, y, size, artObj) {
+        const artArray = artObj.data;
+        const colors = artObj.colors;
+        const rows = artArray.length;
+        const cols = artArray[0].length;
+        const pxWidth = size / cols;
+        const pxHeight = size / rows;
+        const startX = x - size/2;
+        const startY = y - size/2;
+        for(let r=0; r<rows; r++) {
+            for(let c=0; c<cols; c++) {
+                const char = artArray[r][c];
+                if(char !== ' ') {
+                    ctx.fillStyle = colors[char];
+                    // +0.5 mitigates sub-pixel rendering gaps
+                    ctx.fillRect(startX + c*pxWidth, startY + r*pxHeight, pxWidth + 0.5, pxHeight + 0.5); 
+                }
+            }
+        }
+    }
+
     function resizeCanvas() {
         const maxWidth = window.innerWidth * 0.9;
         const maxHeight = (window.innerHeight - 60) * 0.6;
@@ -446,25 +522,20 @@
     }
     window.addEventListener('resize', resizeCanvas);
 
-    // Game Data
-    // Level Design: 7x7. 5 Pairs, 3 Obstacles. Must be 100% fillable.
-    // Obstacles (rock emoji): (1,1), (3,3), (5,5)
-    // P1 (Wine/Cheese): {0,0} & {0,6}
-    // P2 (Baguette/Grape): {2,0} & {2,6}
-    // P3 (Rose/Candle): {4,0} & {4,6}
-    // P4 (Ticket/Popcorn): {6,0} & {6,6}
-    // P5 (Choc/Strawberry): {0,3} & {6,3}
-    
+    // 8-Bit Obstacles
     const obstacles = [
-        {x: 1, y: 1}, {x: 3, y: 3}, {x: 5, y: 5}
+        {x: 1, y: 1, type: 'cathedral'}, 
+        {x: 3, y: 3, type: 'timber'}, 
+        {x: 5, y: 5, type: 'bridge'}
     ];
 
+    // New Icons Mapping
     const pairsData = [
         { id: 1, color: '#e74c3c', icon1: '🍷', icon2: '🧀', s: {x:0, y:0}, e: {x:0, y:6} },
-        { id: 2, color: '#f39c12', icon1: '🥖', icon2: '🍇', s: {x:2, y:0}, e: {x:2, y:6} },
-        { id: 3, color: '#2ecc71', icon1: '🌹', icon2: '🕯️', s: {x:4, y:0}, e: {x:4, y:6} },
-        { id: 4, color: '#9b59b6', icon1: '🎟️', icon2: '🍿', s: {x:6, y:0}, e: {x:6, y:6} },
-        { id: 5, color: '#3498db', icon1: '🍫', icon2: '🍓', s: {x:0, y:3}, e: {x:6, y:3} }
+        { id: 2, color: '#f39c12', icon1: '☕', icon2: '🥐', s: {x:2, y:0}, e: {x:2, y:6} },
+        { id: 3, color: '#2ecc71', icon1: 'CUSTOM_BINOCULARS', icon2: 'CUSTOM_STORK', s: {x:4, y:0}, e: {x:4, y:6} },
+        { id: 4, color: '#9b59b6', icon1: '💐', icon2: '💌', s: {x:6, y:0}, e: {x:6, y:6} },
+        { id: 5, color: '#3498db', icon1: '😏', icon2: '🛏️', s: {x:0, y:3}, e: {x:6, y:3} }
     ];
 
     let paths = { 1:[], 2:[], 3:[], 4:[], 5:[] };
@@ -510,18 +581,32 @@
             }
         }
 
-        // Obstacles
+        // Obstacles (8-Bit Render)
+        obstacles.forEach(o => {
+            drawPixelArt(ctx, o.x * CELL_SIZE + CELL_SIZE/2, o.y * CELL_SIZE + CELL_SIZE/2, CELL_SIZE * 0.7, art[o.type]);
+        });
+
+        // Endpoints (Icons/Pixel Art)
         ctx.font = `${CELL_SIZE*0.6}px Arial`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        obstacles.forEach(o => {
-            ctx.fillText('🧱', o.x * CELL_SIZE + CELL_SIZE/2, o.y * CELL_SIZE + CELL_SIZE/2);
-        });
-
-        // Endpoints (Icons)
+        
         pairsData.forEach(p => {
-            ctx.fillText(p.icon1, p.s.x * CELL_SIZE + CELL_SIZE/2, p.s.y * CELL_SIZE + CELL_SIZE/2);
-            ctx.fillText(p.icon2, p.e.x * CELL_SIZE + CELL_SIZE/2, p.e.y * CELL_SIZE + CELL_SIZE/2);
+            // Start Icon
+            if(p.icon1.startsWith('CUSTOM_')) {
+                const type = p.icon1.split('_')[1].toLowerCase();
+                drawPixelArt(ctx, p.s.x * CELL_SIZE + CELL_SIZE/2, p.s.y * CELL_SIZE + CELL_SIZE/2, CELL_SIZE * 0.7, art[type]);
+            } else {
+                ctx.fillText(p.icon1, p.s.x * CELL_SIZE + CELL_SIZE/2, p.s.y * CELL_SIZE + CELL_SIZE/2);
+            }
+
+            // End Icon
+            if(p.icon2.startsWith('CUSTOM_')) {
+                const type = p.icon2.split('_')[1].toLowerCase();
+                drawPixelArt(ctx, p.e.x * CELL_SIZE + CELL_SIZE/2, p.e.y * CELL_SIZE + CELL_SIZE/2, CELL_SIZE * 0.7, art[type]);
+            } else {
+                ctx.fillText(p.icon2, p.e.x * CELL_SIZE + CELL_SIZE/2, p.e.y * CELL_SIZE + CELL_SIZE/2);
+            }
         });
     }
 
@@ -607,11 +692,11 @@
             
             const existingPathInfo = getPathAt(cell.x, cell.y);
             if(existingPathInfo) {
-                if(existingPathInfo.id !== currentPairId) { vibrate(); return; } // Crossed another path
+                if(existingPathInfo.id !== currentPairId) { vibrate(); return; } 
             }
 
             const targetPairId = getPairAt(cell.x, cell.y);
-            if(targetPairId && targetPairId !== currentPairId) { vibrate(); return; } // Hit wrong endpoint
+            if(targetPairId && targetPairId !== currentPairId) { vibrate(); return; } 
 
             const pairData = pairsData.find(p => p.id === currentPairId);
             const isEndpoint = (pairData.s.x === cell.x && pairData.s.y === cell.y) || 
@@ -658,10 +743,6 @@
             }
         }
 
-        // Win Condition: All pairs connected AND 100% board fill
-        // Note: For user experience, triggering win strictly when all paths connected and grid is full.
-        // Formula: total path cells (minus duplicates at endpoints if logic varies) + obstacles = 49
-        // My logic counts every distinct cell.
         if(connectedPairs === 5) {
             const coveredCells = new Set();
             for(let id in paths) {
@@ -715,16 +796,10 @@
         document.getElementById('state3').classList.remove('active');
         document.getElementById('background').className = 'bg-hn';
         
-        // Phase 4a: Wait 3 seconds with ONLY the image
         setTimeout(() => {
-            // Phase 4b: Slide up letter
             document.getElementById('state4').classList.add('active');
             setTimeout(() => {
                 document.getElementById('final-letter').classList.add('slide-up');
             }, 100);
         }, 3000);
-    }
-</script>
-
-</body>
-</html>
+    }</script></body></html>
