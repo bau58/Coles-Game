@@ -266,8 +266,14 @@
             
             cards.forEach(card => {
                 const day = parseInt(card.getAttribute('data-day'));
-                
-                const isLocked = (currentMonth === 6 && day > currentDay) || currentMonth < 6;
+
+                // ====================================================
+                // SITE PAUSED: every day is forced locked below.
+                // To restore normal date-based unlocking later, delete
+                // the next line and uncomment the original line under it.
+                // ====================================================
+                const isLocked = true;
+                // const isLocked = (currentMonth === 6 && day > currentDay) || currentMonth < 6;
 
                 if (isLocked) {
                     card.classList.add('locked');
