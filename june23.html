@@ -188,7 +188,7 @@
         }
         .text-body {
             font-family: 'Roboto', sans-serif;
-            font-size: 15px;
+            font-size: 16px;
             line-height: 1.5;
             color: #e2e8f0;
             margin-bottom: 24px;
@@ -245,10 +245,9 @@
         }
         .checkpoint-frame {
             width: 100%;
-            height: 140px;
-            background: #cbd5e1;
+            height: 180px;
+            background: transparent;
             border-radius: 8px;
-            margin-bottom: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -258,12 +257,6 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-        }
-        .checkpoint-flavor {
-            font-family: 'Roboto', sans-serif;
-            font-size: 13px;
-            font-style: italic;
-            color: #475569;
         }
 
         /* Interactive End Core Question Block Variants */
@@ -389,12 +382,11 @@
             <div class="checkpoint-frame">
                 <img id="pop-img" class="checkpoint-img" src="" alt="Checkpoint Graphic">
             </div>
-            <div class="checkpoint-flavor" id="pop-flavor">...</div>
         </div>
 
         <div class="screen-overlay" id="start-screen">
             <h1 class="title-arcade">Captain Cole, there's a question waiting for you in Basel.</h1>
-            <p class="text-body">Touch to drag the boat left or right. Avoid the riverbanks and obstacles. Collect the tokens and make it to the end!</p>
+            <p class="text-body">Touch to drag the boat left or right. Avoid the obstacles (🪵 🐟 🐚). Collect the tokens (🥭 😍 🐱) and make it to the end!</p>
             <button class="btn-ui" id="btn-start">Play</button>
         </div>
 
@@ -448,20 +440,20 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // Database Configuration Architecture
+        // Database Configuration Architecture (Cleaned up, no flavor text)
         const CITIES_DATA = [
-            { name: "Amsterdam 🇳🇱", img: "June22.day1.png", text: "🌷 Let the journey begin among the beautiful canals! 🌷" },
-            { name: "Kinderdijk 🌷", img: "June22.day2.png", text: "Cruising down past pristine historic windmills." },
-            { name: "Cologne 🥨", img: "June22day3.png", text: "Passing under towering spires, catching a whiff of fresh pretzels." },
-            { name: "Koblenz 🍺", img: "June22.day4.png", text: "At the historic German Corner where the rivers converge." },
-            { name: "Speyer ⛪️", img: "June22.day5.png", text: "Sailing steady near old majestic cathedral backdrops." },
-            { name: "Strasbourg 🍷", img: "June22.day6.png", text: "Winding down exquisite routes lined with classic architecture." },
-            { name: "Breisach 🌲", img: "June22.day7.png", text: "🌲 Rolling past dark green pines near the edges of the Black Forest! 🌲" },
-            { name: "Basel 🇨🇭", img: "june22.day8.png", text: "Arrival destination reached! Drop the anchor!" }
+            { name: "Amsterdam 🇳🇱", img: "June22.day1.png" },
+            { name: "Kinderdijk 🌷", img: "June22.day2.png" },
+            { name: "Cologne 🥨", img: "June22day3.png" },
+            { name: "Koblenz 🍺", img: "June22.day4.png" },
+            { name: "Speyer ⛪️", img: "June22.day5.png" },
+            { name: "Strasbourg 🍷", img: "June22.day6.png" },
+            { name: "Breisach 🌲", img: "June22.day7.png" },
+            { name: "Basel 🇨🇭", img: "june22.day8.png" }
         ];
 
         const EMOJI_COLLECTIBLES = ["🥭", "😍", "🐱"];
-        const OBSTACLE_TYPES = ["rock", "log", "buoy"];
+        const EMOJI_OBSTACLES = ["🪵", "🐟", "🐚"];
 
         // State Machine Variables
         let gameState = 'START'; 
@@ -473,13 +465,13 @@
         let isInvincible = false;
         let invincibilityTimer = 0;
 
-        // Balance Settings
+        // Re-calibrated Balance Settings for Easy Difficulty
         const SEGMENT_DURATION = 7500; 
         const TOTAL_DURATION = SEGMENT_DURATION * 7; 
-        const BASE_SCROLL_SPEED = 4;
-        const SPEED_INCREMENT_ZONE = 0.5;
-        const SPAWN_INTERVAL_OBSTACLE = 1500;
-        const SPAWN_INTERVAL_COLLECTIBLE = 2500;
+        const BASE_SCROLL_SPEED = 2.5; // Slower start
+        const SPEED_INCREMENT_ZONE = 0.1; // Barely noticeable bump
+        const SPAWN_INTERVAL_OBSTACLE = 2500; // Less frequent obstacles
+        const SPAWN_INTERVAL_COLLECTIBLE = 2000;
 
         let lastObstacleSpawn = 0;
         let lastCollectibleSpawn = 0;
@@ -488,7 +480,6 @@
         const ctx = canvas.getContext('2d');
         const container = document.getElementById('canvas-container');
 
-        // Note: Using the requested boat image file: June22.boat.png
         const boatImage = new Image();
         boatImage.src = 'June22.boat.png';
 
@@ -513,13 +504,13 @@
         canvas.addEventListener('mousedown', (e) => {
             if (gameState !== 'PLAYING') return;
             const rect = canvas.getBoundingClientRect();
-            if (Math.abs((getXInput(e) - rect.left) - playerBoat.x) < 65) isDragging = true;
+            if (Math.abs((getXInput(e) - rect.left) - playerBoat.x) < 80) isDragging = true;
         });
 
         canvas.addEventListener('mousemove', (e) => {
             if (!isDragging || gameState !== 'PLAYING') return;
             const rect = canvas.getBoundingClientRect();
-            playerBoat.x = Math.max(20, Math.min(canvas.width - 20, getXInput(e) - rect.left));
+            playerBoat.x = Math.max(30, Math.min(canvas.width - 30, getXInput(e) - rect.left));
         });
 
         window.addEventListener('mouseup', () => isDragging = false);
@@ -527,44 +518,40 @@
         canvas.addEventListener('touchstart', (e) => {
             if (gameState !== 'PLAYING') return;
             const rect = canvas.getBoundingClientRect();
-            if (Math.abs((getXInput(e) - rect.left) - playerBoat.x) < 65) isDragging = true;
+            if (Math.abs((getXInput(e) - rect.left) - playerBoat.x) < 80) isDragging = true;
             e.preventDefault();
         }, {passive: false});
 
         canvas.addEventListener('touchmove', (e) => {
             if (!isDragging || gameState !== 'PLAYING') return;
             const rect = canvas.getBoundingClientRect();
-            playerBoat.x = Math.max(20, Math.min(canvas.width - 20, getXInput(e) - rect.left));
+            playerBoat.x = Math.max(30, Math.min(canvas.width - 30, getXInput(e) - rect.left));
             e.preventDefault();
         }, {passive: false});
 
         window.addEventListener('touchend', () => isDragging = false);
 
-        // Mathematical River Path Logic
+        // Mathematical River Path Logic (Wide and gentle)
         function getRiverCenterAtY(y, timeOffset) {
-            let frequency = 0.003, amplitude = canvas.width * 0.12;
-            if (currentCityIndex >= 3) { frequency = 0.005; amplitude = canvas.width * 0.18; }
-            if (currentCityIndex >= 6) { frequency = 0.007; amplitude = canvas.width * 0.23; }
+            let frequency = 0.002, amplitude = canvas.width * 0.1;
             return (canvas.width / 2) + Math.sin((y * frequency) - (timeOffset * 0.02)) * amplitude;
         }
 
         function getRiverWidth() {
-            if (currentCityIndex >= 6) return canvas.width * 0.36;
-            if (currentCityIndex >= 3) return canvas.width * 0.43;
-            return canvas.width * 0.50;
+            return canvas.width * 0.65; // Consistently wide river
         }
 
         // Spawning Loops Setup
         function spawnObstacle() {
             const rWidth = getRiverWidth(), topY = -30, rCenter = getRiverCenterAtY(topY, totalElapsedGameTime);
-            const spawnX = (rCenter - (rWidth / 2) + 15) + Math.random() * (rWidth - 30);
-            obstacles.push({ x: spawnX, y: topY, radius: 12 + Math.random() * 5, type: OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)] });
+            const spawnX = (rCenter - (rWidth / 2) + 20) + Math.random() * (rWidth - 40);
+            obstacles.push({ x: spawnX, y: topY, size: 28, emoji: EMOJI_OBSTACLES[Math.floor(Math.random() * EMOJI_OBSTACLES.length)] });
         }
 
         function spawnCollectible() {
             const rWidth = getRiverWidth(), topY = -30, rCenter = getRiverCenterAtY(topY, totalElapsedGameTime);
-            const spawnX = (rCenter - (rWidth / 2) + 15) + Math.random() * (rWidth - 30);
-            collectibles.push({ x: spawnX, y: topY, size: 22, emoji: EMOJI_COLLECTIBLES[Math.floor(Math.random() * EMOJI_COLLECTIBLES.length)] });
+            const spawnX = (rCenter - (rWidth / 2) + 20) + Math.random() * (rWidth - 40);
+            collectibles.push({ x: spawnX, y: topY, size: 24, emoji: EMOJI_COLLECTIBLES[Math.floor(Math.random() * EMOJI_COLLECTIBLES.length)] });
         }
 
         function triggerParticles(x, y, color, count=6) {
@@ -580,7 +567,6 @@
             const city = CITIES_DATA[cityIdx];
             
             document.getElementById('pop-title').innerText = `NOW ENTERING: ${city.name.toUpperCase()}`;
-            document.getElementById('pop-flavor').innerText = city.text;
             
             const imgEl = document.getElementById('pop-img');
             imgEl.src = city.img;
@@ -616,7 +602,8 @@
                 isInvincible = true;
                 invincibilityTimer = 90;
                 const rCenter = getRiverCenterAtY(playerBoat.y, totalElapsedGameTime);
-                playerBoat.x = (playerBoat.x > rCenter) ? playerBoat.x - 25 : playerBoat.x + 25;
+                // Gentle bump towards center
+                playerBoat.x = (playerBoat.x > rCenter) ? playerBoat.x - 15 : playerBoat.x + 15;
             }
         }
 
@@ -716,8 +703,8 @@
                 const bY = playerBoat.y + (playerBoat.height / 2);
                 const bCenterRiverX = getRiverCenterAtY(bY, totalElapsedGameTime);
                 const halfW = rWidth / 2;
-                if ((playerBoat.x - playerBoat.width * 0.35) < (bCenterRiverX - halfW) || 
-                    (playerBoat.x + playerBoat.width * 0.35) > (bCenterRiverX + halfW)) {
+                if ((playerBoat.x - playerBoat.width * 0.25) < (bCenterRiverX - halfW) || 
+                    (playerBoat.x + playerBoat.width * 0.25) > (bCenterRiverX + halfW)) {
                     handleCrash();
                 }
             }
@@ -728,18 +715,16 @@
                 let obs = obstacles[i];
                 obs.y += speed;
 
-                ctx.beginPath();
-                ctx.fillStyle = (obs.type === 'rock') ? '#64748b' : (obs.type === 'log') ? '#78350f' : '#dc2626';
-                ctx.arc(obs.x, obs.y, obs.radius, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 1;
-                ctx.stroke();
+                ctx.font = `${obs.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(obs.emoji, obs.x, obs.y);
 
                 if (!isInvincible) {
                     const dx = playerBoat.x - obs.x;
                     const dy = (playerBoat.y + playerBoat.height / 2) - obs.y;
-                    if (Math.sqrt(dx*dx + dy*dy) < ((playerBoat.width * 0.7) / 2 + obs.radius * 0.8)) {
+                    // Highly forgiving hitbox for obstacles (must hit dead center basically)
+                    if (Math.sqrt(dx*dx + dy*dy) < ((playerBoat.width * 0.3) / 2 + (obs.size * 0.4))) {
                         obstacles.splice(i, 1);
                         handleCrash();
                         continue;
@@ -759,7 +744,8 @@
 
                 const dx = playerBoat.x - col.x;
                 const dy = (playerBoat.y + playerBoat.height / 2) - col.y;
-                if (Math.sqrt(dx*dx + dy*dy) < (playerBoat.width / 2 + col.size / 2)) {
+                // Generous hitbox for collectibles
+                if (Math.sqrt(dx*dx + dy*dy) < (playerBoat.width / 2 + col.size)) {
                     score++;
                     triggerParticles(col.x, col.y, '#fde047', 8);
                     collectibles.splice(j, 1);
@@ -774,8 +760,6 @@
             ctx.translate(playerBoat.x, playerBoat.y);
             
             if (boatImage.complete && boatImage.naturalWidth > 0) {
-                // If the user-provided image is loaded, draw it. 
-                // We draw it centered on the boat's coordinates.
                 ctx.drawImage(
                     boatImage, 
                     -playerBoat.width / 2, 
@@ -784,7 +768,7 @@
                     playerBoat.height
                 );
             } else {
-                // Fallback rendering if the image isn't loaded yet or is missing.
+                // Fallback rendering
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(-playerBoat.width/2 + 4, 5, playerBoat.width, playerBoat.height);
 
@@ -882,7 +866,6 @@
         function advanceToNostalgiaView() {
             document.getElementById('win-screen').classList.add('hidden');
             
-            // Apply background graphics dynamically
             const prefinalScreen = document.getElementById('story-prefinal');
             prefinalScreen.style.background = `url('June22.prefinal.png')`;
             prefinalScreen.classList.remove('hidden');
@@ -907,7 +890,6 @@
             finalScreen.classList.remove('hidden');
         }
 
-        // Run Engine Frames Loop
         requestAnimationFrame(gameLoop);
     </script>
 </body>
