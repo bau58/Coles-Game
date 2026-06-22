@@ -9,7 +9,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;700&family=Satisfy&display=swap" rel="stylesheet">
     
     <style>
-        /* Core Reset & Phone Housing */
         * {
             box-sizing: border-box;
             user-select: none;
@@ -28,7 +27,6 @@
             align-items: center;
         }
 
-        /* Strict 9:16 Aspect Ratio Bounds Container */
         .phone-wrapper {
             width: 100vw;
             height: 100vh;
@@ -43,7 +41,6 @@
             flex-direction: column;
         }
 
-        /* Global Fixed Header Bar Component */
         .global-header {
             position: absolute;
             top: 0;
@@ -58,7 +55,7 @@
             align-items: center;
             justify-content: space-between;
             padding: 0 12px;
-            z-index: 1000;
+            z-index: 9999;
             color: #1e3a24;
         }
         .header-left .home-btn {
@@ -83,7 +80,6 @@
             line-height: 1.2;
         }
 
-        /* HUD Status Layout Bar */
         .game-hud {
             position: absolute;
             top: 50px;
@@ -142,7 +138,6 @@
             color: #fef08a;
         }
 
-        /* Gameplay Rendering Canvas Field */
         .game-canvas-container {
             width: 100%;
             flex-grow: 1;
@@ -155,15 +150,13 @@
             height: 100%;
         }
 
-        /* Core Overlay Architecture Design Rules */
         .screen-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.85); /* Slightly transparent global overlay */
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.85); 
             z-index: 1100;
             display: flex;
             flex-direction: column;
@@ -177,7 +170,6 @@
             display: none !important;
         }
 
-        /* Typography Application Elements */
         .title-arcade {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 32px;
@@ -211,21 +203,17 @@
             transform: scale(0.96);
         }
 
-        /* Mid-Run Segment Cards Overlay Structure */
         .checkpoint-card {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
-            width: 85%;
-            background: rgba(255, 255, 255, 0.98);
-            border: 4px solid #1e3a24;
-            border-radius: 16px;
-            padding: 20px;
+            width: 90%;
+            background: transparent;
+            border: none;
+            padding: 0;
             text-align: center;
             z-index: 1050;
-            color: #1e3a24;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             opacity: 0;
             visibility: hidden;
             transition: all 0.3s ease-out;
@@ -237,16 +225,14 @@
         }
         .checkpoint-title {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 26px;
+            font-size: 36px;
             margin-bottom: 10px;
-            color: #111;
-            border-bottom: 2px solid #ddd;
-            padding-bottom: 4px;
+            color: #fff;
+            text-shadow: 0 4px 12px rgba(0,0,0,0.9), 0 2px 4px rgba(0,0,0,0.8);
         }
         .checkpoint-frame {
             width: 100%;
-            height: 180px;
-            background: none; /* Background removed per request */
+            height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -256,9 +242,9 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
         }
 
-        /* Interactive End Core Question Block Variants */
         .choice-btn-container {
             display: flex;
             gap: 16px;
@@ -279,34 +265,28 @@
         .btn-yes { background: #22c55e; color: white; }
         .btn-no { background: #ef4444; color: white; position: relative; }
 
-        /* Final Story Page Sequences layout */
         .story-layer {
             background-size: cover !important;
             background-position: center !important;
             justify-content: flex-start;
-            padding-top: 60px; /* Adjusted up */
+            padding-top: 70px; 
             z-index: 1200;
         }
         .story-glass-card {
-            background: rgba(0, 0, 0, 0.3); /* A LOT more transparent */
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 24px;
-            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.2); 
+            border: none;
+            padding: 20px;
+            border-radius: 12px;
             width: 90%;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
             margin-bottom: auto;
         }
         .story-text {
             font-family: 'Roboto', sans-serif;
-            font-size: 16px;
-            line-height: 1.6;
             color: #f8fafc;
-            text-align: left;
+            text-align: center;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
         }
 
-        /* Swipe UI Control Indicator Component */
         .swipe-trigger-zone {
             width: 100%;
             padding: 20px 0;
@@ -328,6 +308,7 @@
             letter-spacing: 2px;
             color: #e2e8f0;
             margin-top: 4px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
         @keyframes bounceAction {
@@ -374,25 +355,32 @@
             </div>
         </div>
 
-        <div class="screen-overlay" id="start-screen">
+        <div class="screen-overlay" id="start-screen" style="backdrop-filter: blur(8px);">
             <h1 class="title-arcade">Captain Cole, there's a question waiting for you in Basel.</h1>
             <p class="text-body">Touch to drag the boat left or right. Avoid the obstacles (🪵 🐟 🐚). Collect the tokens (🥭 😍 🐱) and make it to the end!</p>
             <button class="btn-ui" id="btn-start">Play</button>
         </div>
 
-        <div class="screen-overlay hidden" id="fail-screen" style="background: rgba(69, 10, 10, 0.5); backdrop-filter: blur(8px);"> <h1 class="title-arcade" style="color: #f87171;">You sank! Try again.</h1>
+        <div class="screen-overlay hidden" id="fail-screen" style="background: rgba(69, 10, 10, 0.85);">
+            <h1 class="title-arcade" style="color: #f87171;">You sank! Try again.</h1>
             <p class="text-body" style="color: #fca5a5;">Oh, oh! Careful!</p>
             <button class="btn-ui" id="btn-respawn" style="background: #ef4444; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);">Restart from [City]</button>
         </div>
 
-        <div class="screen-overlay hidden" id="win-screen" style="background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(8px);"> <h1 class="title-arcade" style="color: #4ade80; margin-bottom: 6px; text-align: center;">Success!</h1> <h2 class="title-arcade" style="font-size: 22px; color: #fff; text-align: center;">You've made it!</h2> <p class="text-body" style="font-size: 20px; color: #fef08a; font-weight: bold; margin-bottom: 24px; text-align: center;">Captain Cole, do you want to be my girlfriend?</p> <div class="choice-btn-container">
+        <div class="screen-overlay hidden" id="win-screen" style="background: rgba(15, 23, 42, 0.6); justify-content: center; align-items: center;">
+            <h1 class="title-arcade" style="color: #4ade80; margin-bottom: 6px; text-align: center;">Success!</h1>
+            <h2 class="title-arcade" style="font-size: 22px; color: #fff; text-align: center;">You've made it!</h2>
+            <p class="text-body" style="font-size: 20px; color: #fef08a; font-weight: bold; margin-bottom: 24px; text-align: center;">Captain Cole, do you want to be my girlfriend?</p>
+            
+            <div class="choice-btn-container">
                 <button class="btn-choice btn-yes" id="btn-choice-yes">YES</button>
                 <button class="btn-choice btn-no" id="btn-choice-no">NO</button>
             </div>
         </div>
 
         <div class="screen-overlay hidden story-layer" id="story-prefinal" style="background: #0f172a;">
-            <div class="story-glass-card"> <p class="story-text">
+            <div class="story-glass-card" style="margin-top: 20px;">
+                <p class="story-text" style="font-size: 15px; line-height: 1.5;">
                     I know you're probably feeling nostalgic that the trip is ending. And it makes total sense! How lucky are you to have made such a cool trip with such a cool family. Yes, it's ending. But it also happened, and you'll remember it forever. Can't wait to hear all about it very soon.
                 </p>
             </div>
@@ -403,14 +391,16 @@
             </div>
         </div>
 
-        <div class="screen-overlay hidden story-layer" id="story-final" style="background: #0f172a; padding-top: 10px;"> <div class="story-glass-card"> <p class="story-text" style="font-size: 14px; text-align: center;"> Also, don't forget that while this trip is coming to an end, Cole's summer is not done yet. We're still going to the World Cup, K&F are coming to Mexico City, and we'll spend a whole month together. And then, we've got weddings, celebrations, holidays and so much more. <br><br>I can't wait to see you. I can't wait to smell you. I can't wait to kiss you. <br><br><strong>Te veo muy pronto, amor. Te amooooooooo</strong>
+        <div class="screen-overlay hidden story-layer" id="story-final" style="background: #0f172a;">
+            <div class="story-glass-card" style="margin-top: 10px; padding: 15px;">
+                <p class="story-text" style="font-size: 13.5px; line-height: 1.45;">
+                    Also, don't forget that while this trip is coming to an end, Cole's summer is not done yet. We're still going to the World Cup, K&F are coming to Mexico City, and we'll spend a whole month together. And then, we've got weddings, celebrations, holidays and so much more. <br><br>I can't wait to see you. I can't wait to smell you. I can't wait to kiss you. <br><br><strong style="font-size: 15px; color: #fde047;">Te veo muy pronto, amor. Te amooooooooo</strong>
                 </p>
-                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Real-Time Clocks Configuration
         function updateClocks() {
             const now = new Date();
             document.getElementById('clock-cdmx').innerText = `My time: ` + now.toLocaleTimeString('en-US', { timeZone: 'America/Mexico_City', hour12: false });
@@ -419,7 +409,6 @@
         setInterval(updateClocks, 1000);
         updateClocks();
 
-        // Database Configuration Architecture (Cleaned up, no flavor text)
         const CITIES_DATA = [
             { name: "Amsterdam 🇳🇱", img: "June22.day1.png" },
             { name: "Kinderdijk 🌷", img: "June22.day2.png" },
@@ -434,7 +423,6 @@
         const EMOJI_COLLECTIBLES = ["🥭", "😍", "🐱"];
         const EMOJI_OBSTACLES = ["🪵", "🐟", "🐚"];
 
-        // State Machine Variables
         let gameState = 'START'; 
         let score = 0;
         let lives = 3;
@@ -444,12 +432,11 @@
         let isInvincible = false;
         let invincibilityTimer = 0;
 
-        // Re-calibrated Balance Settings for Easy Difficulty
         const SEGMENT_DURATION = 7500; 
         const TOTAL_DURATION = SEGMENT_DURATION * 7; 
-        const BASE_SCROLL_SPEED = 2.5; // Slower start
-        const SPEED_INCREMENT_ZONE = 0.1; // Barely noticeable bump
-        const SPAWN_INTERVAL_OBSTACLE = 2500; // Less frequent obstacles
+        const BASE_SCROLL_SPEED = 2.5; 
+        const SPEED_INCREMENT_ZONE = 0.1; 
+        const SPAWN_INTERVAL_OBSTACLE = 2500; 
         const SPAWN_INTERVAL_COLLECTIBLE = 2000;
 
         let lastObstacleSpawn = 0;
@@ -476,7 +463,6 @@
         window.addEventListener('resize', resizeCanvas);
         setTimeout(resizeCanvas, 50);
 
-        // Horizontal Pointer Inputs Mechanics
         let isDragging = false;
         function getXInput(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
 
@@ -510,17 +496,15 @@
 
         window.addEventListener('touchend', () => isDragging = false);
 
-        // Mathematical River Path Logic (Wide and gentle)
         function getRiverCenterAtY(y, timeOffset) {
             let frequency = 0.002, amplitude = canvas.width * 0.1;
             return (canvas.width / 2) + Math.sin((y * frequency) - (timeOffset * 0.02)) * amplitude;
         }
 
         function getRiverWidth() {
-            return canvas.width * 0.65; // Consistently wide river
+            return canvas.width * 0.65;
         }
 
-        // Spawning Loops Setup
         function spawnObstacle() {
             const rWidth = getRiverWidth(), topY = -30, rCenter = getRiverCenterAtY(topY, totalElapsedGameTime);
             const spawnX = (rCenter - (rWidth / 2) + 20) + Math.random() * (rWidth - 40);
@@ -539,18 +523,16 @@
             }
         }
 
-        // Popups and State Overlays Changes
         function displayCheckpointPopup(cityIdx) {
             gameState = 'POPUP';
             isDragging = false;
             const city = CITIES_DATA[cityIdx];
             
-            document.getElementById('pop-title').innerText = `NOW ENTERING: ${city.name.toUpperCase()}`;
+            document.getElementById('pop-title').innerText = city.name.toUpperCase();
             
             const imgEl = document.getElementById('pop-img');
             imgEl.src = city.img;
 
-            // Sync top miniature layout hud indicators
             const thumb = document.getElementById('hud-thumb');
             thumb.src = city.img;
             thumb.style.display = 'block';
@@ -581,7 +563,6 @@
                 isInvincible = true;
                 invincibilityTimer = 90;
                 const rCenter = getRiverCenterAtY(playerBoat.y, totalElapsedGameTime);
-                // Gentle bump towards center
                 playerBoat.x = (playerBoat.x > rCenter) ? playerBoat.x - 15 : playerBoat.x + 15;
             }
         }
@@ -598,7 +579,6 @@
             document.getElementById('hud-thumb').style.left = `${progressPercent}%`;
         }
 
-        // Processing Loops Module
         let lastTime = 0;
         function gameLoop(timestamp) {
             if (!lastTime) lastTime = timestamp;
@@ -655,12 +635,11 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Scene Graphics Building Modules
         function drawRiverWorld() {
-            ctx.fillStyle = '#2563eb'; // Core clear water
+            ctx.fillStyle = '#2563eb'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            ctx.fillStyle = '#16a34a'; // Grass banks landscape canvas paint brush
+            ctx.fillStyle = '#16a34a'; 
             const step = 4;
             const rWidth = getRiverWidth();
 
@@ -672,7 +651,7 @@
                 ctx.fillRect(0, y, leftEnd, step);
                 ctx.fillRect(rightStart, y, canvas.width - rightStart, step);
 
-                ctx.fillStyle = '#eab308'; // Sand boundary liner
+                ctx.fillStyle = '#eab308'; 
                 ctx.fillRect(leftEnd - 2, y, 3, step);
                 ctx.fillRect(rightStart, y, 3, step);
                 ctx.fillStyle = '#16a34a';
@@ -702,7 +681,6 @@
                 if (!isInvincible) {
                     const dx = playerBoat.x - obs.x;
                     const dy = (playerBoat.y + playerBoat.height / 2) - obs.y;
-                    // Highly forgiving hitbox for obstacles (must hit dead center basically)
                     if (Math.sqrt(dx*dx + dy*dy) < ((playerBoat.width * 0.3) / 2 + (obs.size * 0.4))) {
                         obstacles.splice(i, 1);
                         handleCrash();
@@ -723,7 +701,6 @@
 
                 const dx = playerBoat.x - col.x;
                 const dy = (playerBoat.y + playerBoat.height / 2) - col.y;
-                // Generous hitbox for collectibles
                 if (Math.sqrt(dx*dx + dy*dy) < (playerBoat.width / 2 + col.size)) {
                     score++;
                     triggerParticles(col.x, col.y, '#fde047', 8);
@@ -747,7 +724,6 @@
                     playerBoat.height
                 );
             } else {
-                // Fallback rendering
                 ctx.fillStyle = 'rgba(0,0,0,0.2)';
                 ctx.fillRect(-playerBoat.width/2 + 4, 5, playerBoat.width, playerBoat.height);
 
@@ -809,7 +785,6 @@
             updateHud();
         }
 
-        // Interfaces Wire Connection Execution Elements
         document.getElementById('btn-start').addEventListener('click', () => {
             document.getElementById('start-screen').classList.add('hidden');
             resetRun(true);
@@ -822,7 +797,6 @@
             displayCheckpointPopup(currentCityIndex);
         });
 
-        // Yes/No Choice Event Controls
         document.getElementById('btn-choice-yes').addEventListener('click', advanceToNostalgiaView);
         
         const noBtn = document.getElementById('btn-choice-no');
@@ -835,7 +809,7 @@
             const maxX = containerRect.width - noBtn.offsetWidth - 20;
             const maxY = containerRect.height - noBtn.offsetHeight - 120;
             const randomX = Math.max(20, Math.random() * maxX);
-            const randomY = Math.max(60, Math.random() * maxY);
+            const randomY = Math.max(80, Math.random() * maxY);
             
             noBtn.style.position = 'fixed';
             noBtn.style.left = `${containerRect.left + randomX}px`;
@@ -850,7 +824,6 @@
             prefinalScreen.classList.remove('hidden');
         }
 
-        // Swipe Down Gesture Tracking Logic
         const swipeZone = document.getElementById('swipe-down-trigger-1');
         let touchStartY = 0;
 
