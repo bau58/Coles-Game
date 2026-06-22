@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>June 23 - River Runner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Roboto:wght@400;700&family=Satisfy&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Core Reset & Phone Housing */
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+            margin: 0;
+            padding: 0;
+        }
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #111;
+            overflow: hidden;
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Strict 9:16 Aspect Ratio Bounds Container */
+        .phone-wrapper {
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+            max-width: calc((100vh / 16) * 9);
+            max-height: calc((100vw / 9) * 16);
+            position: relative;
+            background: #1e3a24; 
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Global Fixed Header Bar Component */
+        .global-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 50px;
+            background: rgba(213, 229, 213, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 2px solid #1e3a24;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+            z-index: 1000;
+            color: #1e3a24;
+        }
+        .header-left .home-btn {
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            text-decoration: none;
+            color: #1e3a24;
+            font-size: 14px;
+        }
+        .header-center {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 20px;
+            letter-spacing: 1px;
+        }
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            font-family: 'Roboto', sans-serif;
+            font-size: 9px;
+            font-weight: bold;
+            line-height: 1.2;
+        }
+
+        /* HUD Status Layout Bar */
+        .game-hud {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: 34px;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 900;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            color: #fff;
+        }
+        .lives-box {
+            font-size: 14px;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+        }
+        .progress-container {
+            flex-grow: 1;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            margin: 0 8px;
+            position: relative;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: #4ade80;
+        }
+        .progress-thumb-container {
+            position: absolute;
+            top: -7px;
+            left: 0;
+            width: 100%;
+            height: 22px;
+            pointer-events: none;
+        }
+        .progress-thumb {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            border: 2px solid #1e3a24;
+            transform: translateX(-50%);
+            object-fit: cover;
+            display: none;
+        }
+        .score-box {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 16px;
+            color: #fef08a;
+        }
+
+        /* Gameplay Rendering Canvas Field */
+        .game-canvas-container {
+            width: 100%;
+            flex-grow: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Core Overlay Architecture Design Rules */
+        .screen-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(4px);
+            z-index: 1100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            text-align: center;
+            color: #fff;
+        }
+        .hidden {
+            display: none !important;
+        }
+
+        /* Typography Application Elements */
+        .title-arcade {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            color: #fde047;
+            margin-bottom: 16px;
+            line-height: 1.1;
+            letter-spacing: 1px;
+        }
+        .text-body {
+            font-family: 'Roboto', sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #e2e8f0;
+            margin-bottom: 24px;
+        }
+        .btn-ui {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 16px;
+            padding: 14px 40px;
+            background: #22c55e;
+            color: #fff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(34, 197, 94, 0.4);
+            letter-spacing: 1px;
+        }
+        .btn-ui:active {
+            transform: scale(0.96);
+        }
+
+        /* Mid-Run Segment Cards Overlay Structure */
+        .checkpoint-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 85%;
+            background: rgba(255, 255, 255, 0.98);
+            border: 4px solid #1e3a24;
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+            z-index: 1050;
+            color: #1e3a24;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-out;
+        }
+        .checkpoint-card.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+        .checkpoint-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 26px;
+            margin-bottom: 10px;
+            color: #111;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 4px;
+        }
+        .checkpoint-frame {
+            width: 100%;
+            height: 140px;
+            background: #cbd5e1;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .checkpoint-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .checkpoint-flavor {
+            font-family: 'Roboto', sans-serif;
+            font-size: 13px;
+            font-style: italic;
+            color: #475569;
+        }
+
+        /* Interactive End Core Question Block Variants */
+        .choice-btn-container {
+            display: flex;
+            gap: 16px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .btn-choice {
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            min-width: 100px;
+        }
+        .btn-yes { background: #22c55e; color: white; }
+        .btn-no { background: #ef4444; color: white; position: relative; }
+
+        /* Story Final Page Sequences Viewports layout */
+        .story-layer {
+            background-size: cover !important;
+            background-position: center !important;
+            justify-content: flex-start;
+            padding-top: 80px;
+            z-index: 1200;
+        }
+        .story-glass-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 24px;
+            border-radius: 16px;
+            width: 90%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            margin-bottom: auto;
+        }
+        .story-text {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #f8fafc;
+            text-align: left;
+        }
+
+        /* Swipe UI Control Indicator Component */
+        .swipe-trigger-zone {
+            width: 100%;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            margin-top: auto;
+            margin-bottom: 20px;
+        }
+        .swipe-arrow {
+            font-size: 24px;
+            color: #fde047;
+            animation: bounceAction 1.2s infinite;
+        }
+        .swipe-label {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 14px;
+            letter-spacing: 2px;
+            color: #e2e8f0;
+            margin-top: 4px;
+        }
+
+        @keyframes bounceAction {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+
+        .monogram-cursive {
+            font-family: 'Satisfy', cursive;
+            font-size: 32px;
+            color: #f472b6;
+            text-align: right;
+            margin-top: 16px;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-wrapper">
+        <header class="global-header">
+            <div class="header-left">
+                <a href="index.html" class="home-btn">&lt; Home</a>
+            </div>
+            <div class="header-center">
+                Héctor + Nicole <span style="font-family: Arial, sans-serif;">&infin;</span>
+            </div>
+            <div class="header-right">
+                <div id="clock-cdmx">My time: --:--:--</div>
+                <div id="clock-cet">Your time: --:--:--</div>
+            </div>
+        </header>
+
+        <section class="game-hud">
+            <div class="lives-box" id="hud-lives">❤️ ❤️ ❤️</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="hud-progress"></div>
+                <div class="progress-thumb-container">
+                    <img id="hud-thumb" class="progress-thumb" src="" alt="track">
+                </div>
+            </div>
+            <div class="score-box" id="hud-score">TOKENS: 0</div>
+        </section>
+
+        <div class="game-canvas-container" id="canvas-container">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <div class="checkpoint-card" id="checkpoint-popup">
+            <div class="checkpoint-title" id="pop-title">NOW ENTERING</div>
+            <div class="checkpoint-frame">
+                <img id="pop-img" class="checkpoint-img" src="" alt="Checkpoint Graphic">
+            </div>
+            <div class="checkpoint-flavor" id="pop-flavor">...</div>
+        </div>
+
+        <div class="screen-overlay" id="start-screen">
+            <h1 class="title-arcade">Captain Cole, there's a question waiting for you in Basel.</h1>
+            <p class="text-body">Touch to drag the boat left or right. Avoid the riverbanks and obstacles. Collect the tokens and make it to the end!</p>
+            <button class="btn-ui" id="btn-start">Play</button>
+        </div>
+
+        <div class="screen-overlay hidden" id="fail-screen" style="background: rgba(69, 10, 10, 0.95);">
+            <h1 class="title-arcade" style="color: #f87171;">You sank! Try again.</h1>
+            <p class="text-body" style="color: #fca5a5;">Oh, oh! Careful!</p>
+            <button class="btn-ui" id="btn-respawn" style="background: #ef4444; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);">Restart from [City]</button>
+        </div>
+
+        <div class="screen-overlay hidden" id="win-screen">
+            <h1 class="title-arcade" style="color: #4ade80; margin-bottom: 6px;">Success!</h1>
+            <h2 class="title-arcade" style="font-size: 22px; color: #fff;">You've made it!</h2>
+            <p class="text-body" style="font-size: 20px; color: #fef08a; font-weight: bold; margin-bottom: 24px;">Captain Cole, do you want to be my girlfriend?</p>
+            
+            <div class="choice-btn-container">
+                <button class="btn-choice btn-yes" id="btn-choice-yes">YES</button>
+                <button class="btn-choice btn-no" id="btn-choice-no">NO</button>
+            </div>
+        </div>
+
+        <div class="screen-overlay hidden story-layer" id="story-prefinal" style="background: #0f172a;">
+            <div class="story-glass-card">
+                <p class="story-text">
+                    I know you're probably feeling nostalgic that the trip is ending. And it makes total sense! How lucky are you to have made such a cool trip with such a cool family. Yes, it's ending. But it also happened, and you'll remember it forever. Can't wait to hear all about it very soon.
+                </p>
+            </div>
+            
+            <div class="swipe-trigger-zone" id="swipe-down-trigger-1">
+                <span class="swipe-arrow">▼</span>
+                <span class="swipe-label">Swipe down or tap to continue</span>
+            </div>
+        </div>
+
+        <div class="screen-overlay hidden story-layer" id="story-final" style="background: #0f172a;">
+            <div class="story-glass-card">
+                <p class="story-text">
+                    Also, don't forget that while this trip is coming to an end, Cole's summer is not done yet. We're still going to the World Cup, K&F are coming to Mexico City, and we'll spend a whole month together. And then, we've got weddings, celebrations, holidays and so much more. <br><br>I can't wait to see you. I can't wait to smell you. I can't wait to kiss you. <br><br><strong>Te veo muy pronto, amor. Te amooooooooo</strong>
+                </p>
+                <span class="monogram-cursive">Héctor + Nicole</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Real-Time Clocks Configuration
+        function updateClocks() {
+            const now = new Date();
+            document.getElementById('clock-cdmx').innerText = `My time: ` + now.toLocaleTimeString('en-US', { timeZone: 'America/Mexico_City', hour12: false });
+            document.getElementById('clock-cet').innerText = `Your time: ` + now.toLocaleTimeString('en-US', { timeZone: 'Europe/Berlin', hour12: false });
+        }
+        setInterval(updateClocks, 1000);
+        updateClocks();
+
+        // Database Configuration Architecture
+        const CITIES_DATA = [
+            { name: "Amsterdam 🇳🇱", img: "June22.day1.png", text: "🌷 Let the journey begin among the beautiful canals! 🌷" },
+            { name: "Kinderdijk 🌷", img: "June22.day2.png", text: "Cruising down past pristine historic windmills." },
+            { name: "Cologne 🥨", img: "June22day3.png", text: "Passing under towering spires, catching a whiff of fresh pretzels." },
+            { name: "Koblenz 🍺", img: "June22.day4.png", text: "At the historic German Corner where the rivers converge." },
+            { name: "Speyer ⛪️", img: "June22.day5.png", text: "Sailing steady near old majestic cathedral backdrops." },
+            { name: "Strasbourg 🍷", img: "June22.day6.png", text: "Winding down exquisite routes lined with classic architecture." },
+            { name: "Breisach 🌲", img: "June22.day7.png", text: "🌲 Rolling past dark green pines near the edges of the Black Forest! 🌲" },
+            { name: "Basel 🇨🇭", img: "june22.day8.png", text: "Arrival destination reached! Drop the anchor!" }
+        ];
+
+        const EMOJI_COLLECTIBLES = ["🥭", "😍", "🐱"];
+        const OBSTACLE_TYPES = ["rock", "log", "buoy"];
+
+        // State Machine Variables
+        let gameState = 'START'; 
+        let score = 0;
+        let lives = 3;
+        let currentCityIndex = 0;
+        let currentSegmentTime = 0; 
+        let totalElapsedGameTime = 0; 
+        let isInvincible = false;
+        let invincibilityTimer = 0;
+
+        // Balance Settings
+        const SEGMENT_DURATION = 7500; 
+        const TOTAL_DURATION = SEGMENT_DURATION * 7; 
+        const BASE_SCROLL_SPEED = 4;
+        const SPEED_INCREMENT_ZONE = 0.5;
+        const SPAWN_INTERVAL_OBSTACLE = 1500;
+        const SPAWN_INTERVAL_COLLECTIBLE = 2500;
+
+        let lastObstacleSpawn = 0;
+        let lastCollectibleSpawn = 0;
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+
+        // Note: Using the requested boat image file: June22.boat.png
+        const boatImage = new Image();
+        boatImage.src = 'June22.boat.png';
+
+        let playerBoat = { x: 0, y: 0, width: 34, height: 64 };
+        let obstacles = [];
+        let collectibles = [];
+        let particlePool = [];
+
+        function resizeCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            playerBoat.y = canvas.height * 0.72;
+            if (gameState === 'START') playerBoat.x = canvas.width / 2;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        setTimeout(resizeCanvas, 50);
+
+        // Horizontal Pointer Inputs Mechanics
+        let isDragging = false;
+        function getXInput(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+
+        canvas.addEventListener('mousedown', (e) => {
+            if (gameState !== 'PLAYING') return;
+            const rect = canvas.getBoundingClientRect();
+            if (Math.abs((getXInput(e) - rect.left) - playerBoat.x) < 65) isDragging = true;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+            if (!isDragging || gameState !== 'PLAYING') return;
+            const rect = canvas.getBoundingClientRect();
+            playerBoat.x = Math.max(20, Math.min(canvas.width - 20, getXInput(e) - rect.left));
+        });
+
+        window.addEventListener('mouseup', () => isDragging = false);
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (gameState !== 'PLAYING') return;
+            const rect = canvas.getBoundingClientRect();
+            if (Math.abs((getXInput(e) - rect.left) - playerBoat.x) < 65) isDragging = true;
+            e.preventDefault();
+        }, {passive: false});
+
+        canvas.addEventListener('touchmove', (e) => {
+            if (!isDragging || gameState !== 'PLAYING') return;
+            const rect = canvas.getBoundingClientRect();
+            playerBoat.x = Math.max(20, Math.min(canvas.width - 20, getXInput(e) - rect.left));
+            e.preventDefault();
+        }, {passive: false});
+
+        window.addEventListener('touchend', () => isDragging = false);
+
+        // Mathematical River Path Logic
+        function getRiverCenterAtY(y, timeOffset) {
+            let frequency = 0.003, amplitude = canvas.width * 0.12;
+            if (currentCityIndex >= 3) { frequency = 0.005; amplitude = canvas.width * 0.18; }
+            if (currentCityIndex >= 6) { frequency = 0.007; amplitude = canvas.width * 0.23; }
+            return (canvas.width / 2) + Math.sin((y * frequency) - (timeOffset * 0.02)) * amplitude;
+        }
+
+        function getRiverWidth() {
+            if (currentCityIndex >= 6) return canvas.width * 0.36;
+            if (currentCityIndex >= 3) return canvas.width * 0.43;
+            return canvas.width * 0.50;
+        }
+
+        // Spawning Loops Setup
+        function spawnObstacle() {
+            const rWidth = getRiverWidth(), topY = -30, rCenter = getRiverCenterAtY(topY, totalElapsedGameTime);
+            const spawnX = (rCenter - (rWidth / 2) + 15) + Math.random() * (rWidth - 30);
+            obstacles.push({ x: spawnX, y: topY, radius: 12 + Math.random() * 5, type: OBSTACLE_TYPES[Math.floor(Math.random() * OBSTACLE_TYPES.length)] });
+        }
+
+        function spawnCollectible() {
+            const rWidth = getRiverWidth(), topY = -30, rCenter = getRiverCenterAtY(topY, totalElapsedGameTime);
+            const spawnX = (rCenter - (rWidth / 2) + 15) + Math.random() * (rWidth - 30);
+            collectibles.push({ x: spawnX, y: topY, size: 22, emoji: EMOJI_COLLECTIBLES[Math.floor(Math.random() * EMOJI_COLLECTIBLES.length)] });
+        }
+
+        function triggerParticles(x, y, color, count=6) {
+            for(let i=0; i<count; i++) {
+                particlePool.push({ x: x, y: y, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4, alpha: 1, color: color, size: 2 + Math.random() * 3 });
+            }
+        }
+
+        // Popups and State Overlays Changes
+        function displayCheckpointPopup(cityIdx) {
+            gameState = 'POPUP';
+            isDragging = false;
+            const city = CITIES_DATA[cityIdx];
+            
+            document.getElementById('pop-title').innerText = `NOW ENTERING: ${city.name.toUpperCase()}`;
+            document.getElementById('pop-flavor').innerText = city.text;
+            
+            const imgEl = document.getElementById('pop-img');
+            imgEl.src = city.img;
+
+            // Sync top miniature layout hud indicators
+            const thumb = document.getElementById('hud-thumb');
+            thumb.src = city.img;
+            thumb.style.display = 'block';
+
+            const popup = document.getElementById('checkpoint-popup');
+            popup.classList.add('active');
+
+            setTimeout(() => {
+                popup.classList.remove('active');
+                if (gameState === 'POPUP') {
+                    gameState = 'PLAYING';
+                    currentSegmentTime = 0;
+                }
+            }, 2200);
+        }
+
+        function handleCrash() {
+            lives--;
+            updateHud();
+            triggerParticles(playerBoat.x, playerBoat.y, '#ef4444', 18);
+
+            if (lives <= 0) {
+                gameState = 'FAIL';
+                isDragging = false;
+                document.getElementById('btn-respawn').innerText = `Restart from ${CITIES_DATA[currentCityIndex].name}`;
+                document.getElementById('fail-screen').classList.remove('hidden');
+            } else {
+                isInvincible = true;
+                invincibilityTimer = 90;
+                const rCenter = getRiverCenterAtY(playerBoat.y, totalElapsedGameTime);
+                playerBoat.x = (playerBoat.x > rCenter) ? playerBoat.x - 25 : playerBoat.x + 25;
+            }
+        }
+
+        function updateHud() {
+            let heartString = "";
+            for (let i = 0; i < 3; i++) heartString += (i < lives) ? "❤️ " : "🖤 ";
+            document.getElementById('hud-lives').innerText = heartString.trim();
+            document.getElementById('hud-score').innerText = `TOKENS: ${score}`;
+
+            const totalElapsedMs = (currentCityIndex * SEGMENT_DURATION) + Math.min(currentSegmentTime, SEGMENT_DURATION);
+            const progressPercent = Math.min(100, (totalElapsedMs / TOTAL_DURATION) * 100);
+            document.getElementById('hud-progress').style.width = `${progressPercent}%`;
+            document.getElementById('hud-thumb').style.left = `${progressPercent}%`;
+        }
+
+        // Processing Loops Module
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            if (!lastTime) lastTime = timestamp;
+            let dt = timestamp - lastTime;
+            if (dt > 100) dt = 16.66;
+            lastTime = timestamp;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const currentSpeed = BASE_SCROLL_SPEED + (currentCityIndex * SPEED_INCREMENT_ZONE);
+
+            if (gameState === 'PLAYING' || gameState === 'POPUP' || gameState === 'FAIL') {
+                totalElapsedGameTime += (gameState === 'PLAYING') ? currentSpeed : 0;
+                drawRiverWorld();
+            }
+
+            if (gameState === 'PLAYING') {
+                currentSegmentTime += dt;
+
+                if (isInvincible) {
+                    invincibilityTimer--;
+                    if (invincibilityTimer <= 0) isInvincible = false;
+                }
+
+                const cumulativeMs = currentCityIndex * SEGMENT_DURATION + currentSegmentTime;
+                if (cumulativeMs - lastObstacleSpawn > SPAWN_INTERVAL_OBSTACLE) {
+                    spawnObstacle();
+                    lastObstacleSpawn = cumulativeMs;
+                }
+                if (cumulativeMs - lastCollectibleSpawn > SPAWN_INTERVAL_COLLECTIBLE) {
+                    spawnCollectible();
+                    lastCollectibleSpawn = cumulativeMs;
+                }
+
+                processEntities(currentSpeed);
+
+                if (currentSegmentTime >= SEGMENT_DURATION) {
+                    if (currentCityIndex < 7) {
+                        currentCityIndex++;
+                        updateHud();
+                        displayCheckpointPopup(currentCityIndex);
+                    } else {
+                        gameState = 'WIN';
+                        document.getElementById('win-screen').classList.remove('hidden');
+                    }
+                }
+                updateHud();
+            }
+
+            if (gameState === 'PLAYING' || gameState === 'POPUP') {
+                if (!isInvincible || Math.floor(invincibilityTimer / 4) % 2 === 0) drawBoat();
+            }
+
+            renderParticles();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Scene Graphics Building Modules
+        function drawRiverWorld() {
+            ctx.fillStyle = '#2563eb'; // Core clear water
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#16a34a'; // Grass banks landscape canvas paint brush
+            const step = 4;
+            const rWidth = getRiverWidth();
+
+            for (let y = 0; y < canvas.height; y += step) {
+                const rCenter = getRiverCenterAtY(y, totalElapsedGameTime);
+                const leftEnd = rCenter - (rWidth / 2);
+                const rightStart = rCenter + (rWidth / 2);
+
+                ctx.fillRect(0, y, leftEnd, step);
+                ctx.fillRect(rightStart, y, canvas.width - rightStart, step);
+
+                ctx.fillStyle = '#eab308'; // Sand boundary liner
+                ctx.fillRect(leftEnd - 2, y, 3, step);
+                ctx.fillRect(rightStart, y, 3, step);
+                ctx.fillStyle = '#16a34a';
+            }
+
+            if (gameState === 'PLAYING' && !isInvincible) {
+                const bY = playerBoat.y + (playerBoat.height / 2);
+                const bCenterRiverX = getRiverCenterAtY(bY, totalElapsedGameTime);
+                const halfW = rWidth / 2;
+                if ((playerBoat.x - playerBoat.width * 0.35) < (bCenterRiverX - halfW) || 
+                    (playerBoat.x + playerBoat.width * 0.35) > (bCenterRiverX + halfW)) {
+                    handleCrash();
+                }
+            }
+        }
+
+        function processEntities(speed) {
+            for (let i = obstacles.length - 1; i >= 0; i--) {
+                let obs = obstacles[i];
+                obs.y += speed;
+
+                ctx.beginPath();
+                ctx.fillStyle = (obs.type === 'rock') ? '#64748b' : (obs.type === 'log') ? '#78350f' : '#dc2626';
+                ctx.arc(obs.x, obs.y, obs.radius, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+
+                if (!isInvincible) {
+                    const dx = playerBoat.x - obs.x;
+                    const dy = (playerBoat.y + playerBoat.height / 2) - obs.y;
+                    if (Math.sqrt(dx*dx + dy*dy) < ((playerBoat.width * 0.7) / 2 + obs.radius * 0.8)) {
+                        obstacles.splice(i, 1);
+                        handleCrash();
+                        continue;
+                    }
+                }
+                if (obs.y > canvas.height + 40) obstacles.splice(i, 1);
+            }
+
+            for (let j = collectibles.length - 1; j >= 0; j--) {
+                let col = collectibles[j];
+                col.y += speed;
+
+                ctx.font = `${col.size}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(col.emoji, col.x, col.y);
+
+                const dx = playerBoat.x - col.x;
+                const dy = (playerBoat.y + playerBoat.height / 2) - col.y;
+                if (Math.sqrt(dx*dx + dy*dy) < (playerBoat.width / 2 + col.size / 2)) {
+                    score++;
+                    triggerParticles(col.x, col.y, '#fde047', 8);
+                    collectibles.splice(j, 1);
+                    continue;
+                }
+                if (col.y > canvas.height + 40) collectibles.splice(j, 1);
+            }
+        }
+
+        function drawBoat() {
+            ctx.save();
+            ctx.translate(playerBoat.x, playerBoat.y);
+            
+            if (boatImage.complete && boatImage.naturalWidth > 0) {
+                // If the user-provided image is loaded, draw it. 
+                // We draw it centered on the boat's coordinates.
+                ctx.drawImage(
+                    boatImage, 
+                    -playerBoat.width / 2, 
+                    -playerBoat.height / 2, 
+                    playerBoat.width, 
+                    playerBoat.height
+                );
+            } else {
+                // Fallback rendering if the image isn't loaded yet or is missing.
+                ctx.fillStyle = 'rgba(0,0,0,0.2)';
+                ctx.fillRect(-playerBoat.width/2 + 4, 5, playerBoat.width, playerBoat.height);
+
+                ctx.fillStyle = '#b45309'; 
+                ctx.beginPath();
+                ctx.moveTo(0, -playerBoat.height/2);
+                ctx.lineTo(playerBoat.width / 2, -playerBoat.height/2 + playerBoat.height * 0.25);
+                ctx.lineTo(playerBoat.width / 2, playerBoat.height/2);
+                ctx.lineTo(-playerBoat.width / 2, playerBoat.height/2);
+                ctx.lineTo(-playerBoat.width / 2, -playerBoat.height/2 + playerBoat.height * 0.25);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = '#d97706';
+                ctx.beginPath();
+                ctx.moveTo(0, -playerBoat.height/2 + 5);
+                ctx.lineTo(playerBoat.width / 2 - 4, -playerBoat.height/2 + playerBoat.height * 0.28);
+                ctx.lineTo(playerBoat.width / 2 - 4, playerBoat.height/2 - 4);
+                ctx.lineTo(-playerBoat.width / 2 + 4, playerBoat.height/2 - 4);
+                ctx.lineTo(-playerBoat.width / 2 + 4, -playerBoat.height/2 + playerBoat.height * 0.28);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillRect(-playerBoat.width/2 + 6, -playerBoat.height/2 + playerBoat.height * 0.45, playerBoat.width - 12, 4);
+                ctx.fillRect(-playerBoat.width/2 + 6, -playerBoat.height/2 + playerBoat.height * 0.75, playerBoat.width - 12, 4);
+            }
+            
+            ctx.restore();
+        }
+
+        function renderParticles() {
+            for (let i = particlePool.length - 1; i >= 0; i--) {
+                let p = particlePool[i];
+                p.x += p.vx; p.y += p.vy; p.alpha -= 0.025;
+                if (p.alpha <= 0) { particlePool.splice(i, 1); continue; }
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function resetRun(fullReset) {
+            obstacles = []; collectibles = []; isInvincible = false; isDragging = false;
+            if (fullReset) {
+                score = 0; lives = 3; currentCityIndex = 0; currentSegmentTime = 0; totalElapsedGameTime = 0;
+                lastObstacleSpawn = 0; lastCollectibleSpawn = 0;
+                document.getElementById('hud-thumb').style.display = 'none';
+            } else {
+                lives = 3; currentSegmentTime = 0;
+                const timelineMark = currentCityIndex * SEGMENT_DURATION;
+                lastObstacleSpawn = timelineMark; lastCollectibleSpawn = timelineMark;
+            }
+            playerBoat.x = canvas.width / 2;
+            updateHud();
+        }
+
+        // Interfaces Wire Connection Execution Elements
+        document.getElementById('btn-start').addEventListener('click', () => {
+            document.getElementById('start-screen').classList.add('hidden');
+            resetRun(true);
+            displayCheckpointPopup(0);
+        });
+
+        document.getElementById('btn-respawn').addEventListener('click', () => {
+            document.getElementById('fail-screen').classList.add('hidden');
+            resetRun(false);
+            displayCheckpointPopup(currentCityIndex);
+        });
+
+        // Yes/No Choice Event Controls
+        document.getElementById('btn-choice-yes').addEventListener('click', advanceToNostalgiaView);
+        
+        const noBtn = document.getElementById('btn-choice-no');
+        noBtn.addEventListener('mouseover', evadeNoButton);
+        noBtn.addEventListener('touchstart', (e) => { evadeNoButton(); e.preventDefault(); });
+        noBtn.addEventListener('click', (e) => { evadeNoButton(); e.preventDefault(); });
+
+        function evadeNoButton() {
+            const containerRect = canvas.getBoundingClientRect();
+            const maxX = containerRect.width - noBtn.offsetWidth - 20;
+            const maxY = containerRect.height - noBtn.offsetHeight - 120;
+            const randomX = Math.max(20, Math.random() * maxX);
+            const randomY = Math.max(60, Math.random() * maxY);
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = `${containerRect.left + randomX}px`;
+            noBtn.style.top = `${containerRect.top + randomY}px`;
+        }
+
+        function advanceToNostalgiaView() {
+            document.getElementById('win-screen').classList.add('hidden');
+            
+            // Apply background graphics dynamically
+            const prefinalScreen = document.getElementById('story-prefinal');
+            prefinalScreen.style.background = `url('June22.prefinal.png')`;
+            prefinalScreen.classList.remove('hidden');
+        }
+
+        // Swipe Down Gesture Tracking Logic
+        const swipeZone = document.getElementById('swipe-down-trigger-1');
+        let touchStartY = 0;
+
+        swipeZone.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; });
+        swipeZone.addEventListener('touchend', (e) => {
+            const touchEndY = e.changedTouches[0].clientY;
+            if (touchEndY - touchStartY > 40) proceedToFinalScreen();
+        });
+        swipeZone.addEventListener('click', proceedToFinalScreen);
+
+        function proceedToFinalScreen() {
+            document.getElementById('story-prefinal').classList.add('hidden');
+            
+            const finalScreen = document.getElementById('story-final');
+            finalScreen.style.background = `url('June22.hn.jpg')`;
+            finalScreen.classList.remove('hidden');
+        }
+
+        // Run Engine Frames Loop
+        requestAnimationFrame(gameLoop);
+    </script>
+</body>
+</html>
